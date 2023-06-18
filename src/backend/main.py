@@ -2,7 +2,7 @@ import logging
 from contextlib import redirect_stdout
 from io import StringIO
 
-from src.backend.server import server
+from .server import server
 
 import webview
 

@@ -1,18 +1,25 @@
 import os
+import webview
 from flask import Flask
+from io import StringIO
+from contextlib import redirect_stdout
+from logging import getLogger, NullHandler
 
-from .app import App
-from .server import Server
+logger = getLogger()
+logger.addHandler(NullHandler())
+
+from app import App
+from server import Server
 
 class Factory:
 
-    @classmethod
-    def create_app(cls, simulate: bool = False):
+    @staticmethod
+    def create_app(simulate: bool = False):
         application = App(simulate=simulate)
         return application
 
-    @classmethod
-    def create_server(cls, application: App):
+    @staticmethod
+    def create_server(application: App):
         gui_dir = os.path.join(os.path.dirname(__file__), '..', 'frontend')  # development path
 
         if not os.path.exists(gui_dir):  # frozen executable path
@@ -41,4 +48,11 @@ class Factory:
         Server.application = application
 
         return flask_server
+
+    @staticmethod
+    def create_window(server: Flask, window_name: str):
+        stream = StringIO()
+        with redirect_stdout(stream):
+            window = webview.create_window(window_name, server)
+        return window
 

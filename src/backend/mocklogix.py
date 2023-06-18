@@ -3,8 +3,12 @@ from enum import Enum
 from datetime import datetime
 from string import ascii_letters
 from random import randint, getrandbits, choice
+from logging import getLogger, NullHandler
 
-from .models import (
+logger = getLogger()
+logger.addHandler(NullHandler())
+
+from models import (
     PLCResponseDTO,
     PLCTagDTO,
     PLCDeviceDTO

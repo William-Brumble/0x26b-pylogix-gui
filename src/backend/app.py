@@ -1,8 +1,8 @@
 from logging import getLogger, NullHandler
 from pylogix import PLC as RealPylogixPLC
 
-from .mock import PLC as MockPylogixPLC
-from .models import (
+from mocklogix import PLC as MockPylogixPLC
+from models import (
         ResponseDTO, PLCResponseDTO,
         ConnectReqDTO, ConnectResDTO,
         CloseReqDTO, CloseResDTO,

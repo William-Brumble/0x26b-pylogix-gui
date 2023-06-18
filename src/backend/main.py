@@ -1,15 +1,15 @@
-import logging
-from contextlib import redirect_stdout
-from io import StringIO
-
-from .server import server
-
 import webview
+from logging import getLogger, NullHandler
 
-logger = logging.getLogger(__name__)
+from factory import Factory
+
+logger = getLogger()
+logger.addHandler(NullHandler())
 
 if __name__ == '__main__':
-    stream = StringIO()
-    with redirect_stdout(stream):
-        window = webview.create_window('PYLOGIX', server)
-        webview.start(debug=True)
+
+    application = Factory.create_app(simulate=True)
+    server = Factory.create_server(application=application)
+    window = Factory.create_window(server=server, window_name="pylogix")
+
+    webview.start(debug=True)

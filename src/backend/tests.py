@@ -1,7 +1,6 @@
 import unittest
 
-from src.backend.models import (
-        ResponseDTO, PLCResponseDTO,
+from models import (
         ConnectReqDTO, ConnectResDTO,
         CloseReqDTO, CloseResDTO,
         GetConnectionSizeReqDTO, GetConnectionSizeResDTO,
@@ -17,16 +16,15 @@ from src.backend.models import (
         GetModulePropertiesReqDTO, GetModulePropertiesResDTO,
         GetDevicePropertiesReqDTO, GetDevicePropertiesResDTO
 )
-from src.backend.app import App
+from factory import Factory
 
 
 class AppTests(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.app = App(simulate=True)
-        return super().setUp()
+        self.app = Factory.create_app(simulate=True)
 
-    def test_connect(self):
+        # the following tests app.connection()
         payload = ConnectReqDTO(
             ip_address="192.168.1.196",
             slot=0,
@@ -34,6 +32,11 @@ class AppTests(unittest.TestCase):
             Micro800=False
         )
         response = self.app.connect(req=payload)
+        self.assertIsInstance(response, ConnectResDTO)
+        self.assertEqual(response.error, False)
+        self.assertEqual(response.status, "200 OK")
+
+        return super().setUp()
 
     def test_close(self):
         payload = CloseReqDTO()

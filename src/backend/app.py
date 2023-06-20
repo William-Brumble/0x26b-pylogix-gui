@@ -1,14 +1,16 @@
+from dataclasses import asdict
 from logging import getLogger, NullHandler
 from pylogix import PLC as RealPylogixPLC
 
 from mocklogix import PLC as MockPylogixPLC
+from utils import common_exception_handler
 from models import (
         ResponseDTO, PLCResponseDTO,
         ConnectReqDTO, ConnectResDTO,
         CloseReqDTO, CloseResDTO,
         GetConnectionSizeReqDTO, GetConnectionSizeResDTO,
         SetConnectionSizeReqDTO, SetConnectionSizeResDTO,
-        ReadReqDTO, ReadResDTO,
+        ReadReqDTO, ReadResDTO, StatusDTO,
         WriteReqDTO, WriteResDTO,
         GetPlcTimeReqDTO, GetPlcTimeResDTO,
         SetPlcTimeReqDTO, SetPlcTimeResDTO,
@@ -23,18 +25,6 @@ from models import (
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
-def common_exception_handler(ResponseClass):
-    """ Returns error message if an exception occurs """
-    def wrap(f):
-        def modified_f(self, *args, **kwargs):
-            try:
-                return f(self, *args, **kwargs)
-            except Exception as e:
-                logger.error(f"exception in method {f.__name__}: {e}")
-                return ResponseClass(error=True, status="500 Internal Server Error", error_message=str(e))
-        return modified_f
-    return wrap
-
 def common_connection_protection(ResponseClass):
     """ Returns error message if not connected to a PLC """
     def wrap(f):
@@ -43,7 +33,7 @@ def common_connection_protection(ResponseClass):
                 return f(self, *args, **kwargs)
             else:
                 logger.warning(f"412 Precondition Failed: You must be connected to a PLC before sending a request")
-                return ResponseClass(error=True, status="412 Precondition Failed", error_message="You must be connected to a PLC before sending a request")
+                return StatusDTO(error=True, status="412 Precondition Failed", error_message="You must be connected to a PLC before sending a request")
         return modified_f
     return wrap
 
@@ -96,8 +86,11 @@ class App:
     @common_connection_protection(ReadResDTO)
     def read(self, req: ReadReqDTO) -> ReadResDTO:
         """ At the moment we are only implementing reading a single tag. """
+        logger.debug(f"Read called with: {req}")
         responses = self._plc.Read(req.tag, req.count, req.datatype)
+        logger.debug(f"Got the following response: {responses}")
         payload = self._process_plc_response(responses)
+        logger.debug(f"Processed the following response: {payload}")
         return ReadResDTO(
             status="200 OK",
             responses=payload
@@ -107,8 +100,11 @@ class App:
     @common_connection_protection(WriteResDTO)
     def write(self, req: WriteReqDTO) -> WriteResDTO:
         """ At the moment we are only implementing writing a single tag. """
+        logger.debug(f"Write called with: {req}")
         responses = self._plc.Write(req.tag, req.value, req.datatype)
+        logger.debug(f"Got the following response: {responses}")
         payload = self._process_plc_response(responses)
+        logger.debug(f"Processed the following response: {payload}")
         return WriteResDTO(
             status="200 OK",
             responses=payload
@@ -116,39 +112,58 @@ class App:
 
     def _process_plc_response(self, responses: PLCResponseDTO | list[PLCResponseDTO]) -> list[ResponseDTO]:
         """ Unpack the raw response from the PLC to an internally defined ResponseDTO. """
+        logger.debug(f"Processing the plc response: {responses}")
         payload: list[ResponseDTO] = []
+
+        logger.debug("Checking if the input responses is a list")
         if isinstance(responses, list):
+            logger.debug("Input responses is a list")
             for response in responses:
+                logger.debug("Checking to see if the response was a success")
                 if response.Status == "Success":
-                    payload.append(ResponseDTO(
+                    logger.debug("The response was successful")
+                    temp = ResponseDTO(
                         tag=response.TagName,
                         value=response.Value,
                         status=response.Status,
                         error=False 
-                    ))
+                    )
+                    logger.debug(f"Adding the response to the list: {temp}")
+                    payload.append(temp)
                 else:
-                    payload.append(ResponseDTO(
+                    logger.debug("The response was not successful")
+                    temp = ResponseDTO(
                         tag=response.TagName,
                         value=response.Value,
                         status=response.Status,
                         error=True
-                    ))
+                    )
+                    logger.debug(f"Adding the response to the list: {temp}")
+                    payload.append(temp)
         else:
+            logger.debug("Input responses is not a list")
+            logger.debug("Checking to see if the response was a success")
             if responses.Status == "Success":
+                logger.debug("The response was successful")
                 response = ResponseDTO(
                         tag=responses.TagName,
                         value=responses.Value,
                         status=responses.Status,
                         error=False
                 )
+                logger.debug(f"Adding the response to the list: {response}")
+                payload = [response,]
             else:
+                logger.debug("The response was not successful")
                 response = ResponseDTO(
                         tag=responses.TagName,
                         value=responses.Value,
                         status=responses.Status,
                         error=True
                 )
+                logger.debug(f"Adding the response to the list: {response}")
                 payload = [response,]
+        logger.debug(f"Processing finished with the following payload: {payload}")
         return payload
 
     @common_exception_handler(GetPlcTimeResDTO)

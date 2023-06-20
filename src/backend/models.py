@@ -2,13 +2,17 @@ from datetime import datetime
 from dataclasses import dataclass
 
 @dataclass(kw_only=True)
+class RequestDTO:
+    token: str
+
+@dataclass(kw_only=True)
 class StatusDTO:
     status: str = "200 OK"
     error: bool = False
     error_message: str = "No error"
 
 @dataclass(kw_only=True)
-class ConnectReqDTO:
+class ConnectReqDTO(RequestDTO):
     ip_address: str
     slot: int
     timeout: int
@@ -19,7 +23,7 @@ class ConnectResDTO(StatusDTO):
     pass
 
 @dataclass(kw_only=True)
-class CloseReqDTO:
+class CloseReqDTO(RequestDTO):
     pass
 
 @dataclass(kw_only=True)
@@ -27,15 +31,15 @@ class CloseResDTO(StatusDTO):
     pass
 
 @dataclass(kw_only=True)
-class GetConnectionSizeReqDTO:
+class GetConnectionSizeReqDTO(RequestDTO):
     pass
 
 @dataclass(kw_only=True)
 class GetConnectionSizeResDTO(StatusDTO):
-    pass
+    connection_size: int | None
 
 @dataclass(kw_only=True)
-class SetConnectionSizeReqDTO:
+class SetConnectionSizeReqDTO(RequestDTO):
     connection_size: int
 
 @dataclass
@@ -44,7 +48,7 @@ class SetConnectionSizeResDTO(StatusDTO):
     pass
 
 @dataclass(kw_only=True)
-class ReadReqDTO:
+class ReadReqDTO(RequestDTO):
     tag: str
     count: int = 1
     datatype: int | None = None
@@ -68,7 +72,7 @@ class PLCTagDTO:
 
     def __repr__(self):
         props = ''
-        props += 'TagName={}, '.format(self.TagName)
+        props += 'TagName={}, '.format(self.TagName or "")
         props += 'InstanceID={}, '.format(self.InstanceID)
         props += 'SymbolType={}, '.format(self.SymbolType)
         props += 'DataTypeValue={}, '.format(self.DataTypeValue)
@@ -86,7 +90,7 @@ class PLCTagDTO:
 
     def __str__(self):
         return '{} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
-                self.TagName,
+                self.TagName or "",
                 self.InstanceID,
                 self.SymbolType,
                 self.DataTypeValue,
@@ -164,7 +168,7 @@ class PLCResponseDTO(StatusDTO):
             self.TagName, self.Value, self.Status)
 
     def __str__(self):
-        return '{} {} {}'.format(self.TagName, self.Value, self.Status)
+        return '{} {} {}'.format(self.TagName or "", self.Value, self.Status)
 
 @dataclass(kw_only=True)
 class ResponseDTO(StatusDTO):
@@ -178,7 +182,7 @@ class ReadResDTO(StatusDTO):
     responses: list[ResponseDTO]
 
 @dataclass(kw_only=True)
-class WriteReqDTO:
+class WriteReqDTO(RequestDTO):
     tag: str
     value: bool | int | str
     datatype: int | None = None
@@ -188,7 +192,7 @@ class WriteResDTO(StatusDTO):
     responses: list[ResponseDTO]
 
 @dataclass(kw_only=True)
-class GetPlcTimeReqDTO:
+class GetPlcTimeReqDTO(RequestDTO):
     raw: bool = False
 
 @dataclass(kw_only=True)
@@ -196,7 +200,7 @@ class GetPlcTimeResDTO(StatusDTO):
     response: PLCResponseDTO
 
 @dataclass(kw_only=True)
-class SetPlcTimeReqDTO:
+class SetPlcTimeReqDTO(RequestDTO):
     pass
 
 @dataclass(kw_only=True)
@@ -204,7 +208,7 @@ class SetPlcTimeResDTO(StatusDTO):
     response: PLCResponseDTO
 
 @dataclass(kw_only=True)
-class GetTagListReqDTO:
+class GetTagListReqDTO(RequestDTO):
     all_tags: bool = True
 
 @dataclass(kw_only=True)
@@ -212,7 +216,7 @@ class GetTagListResDTO(StatusDTO):
     response: PLCResponseDTO
 
 @dataclass(kw_only=True)
-class GetProgramTagListReqDTO:
+class GetProgramTagListReqDTO(RequestDTO):
     program_name: str
 
 @dataclass(kw_only=True)
@@ -220,7 +224,7 @@ class GetProgramTagListResDTO(StatusDTO):
     response: PLCResponseDTO
 
 @dataclass(kw_only=True)
-class GetProgramsListReqDTO:
+class GetProgramsListReqDTO(RequestDTO):
     pass
 
 @dataclass(kw_only=True)
@@ -228,7 +232,7 @@ class GetProgramsListResDTO(StatusDTO):
     response: PLCResponseDTO
 
 @dataclass(kw_only=True)
-class DiscoverReqDTO:
+class DiscoverReqDTO(RequestDTO):
     pass
 
 @dataclass(kw_only=True)
@@ -236,7 +240,7 @@ class DiscoverResDTO(StatusDTO):
     response: PLCResponseDTO
 
 @dataclass(kw_only=True)
-class GetModulePropertiesReqDTO:
+class GetModulePropertiesReqDTO(RequestDTO):
     slot: int
 
 @dataclass(kw_only=True)
@@ -244,7 +248,7 @@ class GetModulePropertiesResDTO(StatusDTO):
     response: PLCResponseDTO
 
 @dataclass(kw_only=True)
-class GetDevicePropertiesReqDTO:
+class GetDevicePropertiesReqDTO(RequestDTO):
     pass
 
 @dataclass(kw_only=True)

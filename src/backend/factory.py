@@ -5,34 +5,41 @@ from io import StringIO
 from contextlib import redirect_stdout
 from logging import getLogger, NullHandler
 
-logger = getLogger(__name__)
-logger.addHandler(NullHandler())
-
 from app import App
 from server import Server
+
+logger = getLogger()
+logger.addHandler(NullHandler())
 
 class Factory:
 
     @staticmethod
     def create_app(simulate: bool = False):
+        logger.debug(f"Creating the app with simulate: {simulate}")
         application = App(simulate=simulate)
         return application
 
     @staticmethod
     def create_server(application: App):
-        gui_dir = os.path.join(os.path.dirname(__file__), '..', 'frontend')  # development path
+        logger.debug(f"Creating the server with application: {application}")
 
+        gui_dir = os.path.join(os.path.dirname(__file__), '..', 'frontend')  # development path
         if not os.path.exists(gui_dir):  # frozen executable path
             gui_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend')
+        logger.debug(f"gui_dir set to: {gui_dir}")
 
         flask_server = Server(frontend_path=gui_dir, application=application)
 
         return flask_server
 
     @staticmethod
-    def create_window(server: Flask, window_name: str):
+    def create_window(server: Flask, server_port: int, token: str, window_name: str):
+        logger.debug(f"Creating the window with server: {server}, and window_name: {window_name}")
         stream = StringIO()
         with redirect_stdout(stream):
-            window = webview.create_window(window_name, server)
+            window = webview.create_window(window_name, server, http_port=server_port)
+
+        webview.token = "test"
+
         return window
 

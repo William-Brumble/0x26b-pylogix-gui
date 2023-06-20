@@ -1,6 +1,10 @@
 import unittest
+from datetime import datetime
+from flask import Flask
+from webview import Window
 
 from models import (
+        ResponseDTO,
         ConnectReqDTO, ConnectResDTO,
         CloseReqDTO, CloseResDTO,
         GetConnectionSizeReqDTO, GetConnectionSizeResDTO,
@@ -14,10 +18,38 @@ from models import (
         GetProgramsListReqDTO, GetProgramsListResDTO,
         DiscoverReqDTO, DiscoverResDTO,
         GetModulePropertiesReqDTO, GetModulePropertiesResDTO,
-        GetDevicePropertiesReqDTO, GetDevicePropertiesResDTO
+        GetDevicePropertiesReqDTO, GetDevicePropertiesResDTO,
+        PLCDeviceDTO, PLCTagDTO
 )
+from server import Server
+from app import App
 from factory import Factory
 
+class FactoryTests(unittest.TestCase):
+
+    def setUp(self) -> None:
+        Server.application = None
+
+        return super().setUp()
+
+    def test_create_app(self):
+        application = Factory.create_app(simulate=True)
+        self.assertIsInstance(application, App)
+
+    def test_create_server(self):
+        application = Factory.create_app(simulate=True)
+        server = Factory.create_server(application)
+        self.assertIsInstance(server, Flask)
+        self.assertIsInstance(Server.application, App)
+
+    def test_create_window(self):
+        application = Factory.create_app(simulate=True)
+        server = Factory.create_server(application=application)
+        window = Factory.create_window(server=server, window_name="some-name")
+        self.assertIsInstance(Server.application, Window)
+
+    def tearDown(self) -> None:
+        return super().tearDown()
 
 class AppTests(unittest.TestCase):
 
@@ -69,6 +101,16 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, ReadResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertIsInstance(response.responses, list)
+        for i in response.responses:
+            self.assertIsInstance(i, ResponseDTO)
+            self.assertIsInstance(i.tag, str)
+            self.assertIsInstance(i.status, str)
+            self.assertIsInstance(i.error, bool)
+            if i.value:
+                self.assertIsInstance(i.value, (bool, int, str, list[str], float, datetime, list[PLCTagDTO], PLCDeviceDTO, list[PLCDeviceDTO]))
+                self.assertEqual(i.status, "200 OK")
+                self.assertEqual(i.error, False)
 
     def test_write(self):
         payload = WriteReqDTO(
@@ -79,6 +121,16 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, WriteResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertIsInstance(response.responses, list)
+        for i in response.responses:
+            self.assertIsInstance(i, ResponseDTO)
+            self.assertIsInstance(i.tag, str)
+            self.assertIsInstance(i.status, str)
+            self.assertIsInstance(i.error, bool)
+            if i.value:
+                self.assertIsInstance(i.value, (bool, int, str, list[str], float, datetime, list[PLCTagDTO], PLCDeviceDTO, list[PLCDeviceDTO]))
+                self.assertEqual(i.status, "200 OK")
+                self.assertEqual(i.error, False)
 
     def test_get_plc_time(self):
         payload = GetPlcTimeReqDTO(
@@ -88,6 +140,8 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, GetPlcTimeResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertEqual(response.response.Status, "Success")
+        self.assertIsInstance(response.response.Value, (float, datetime))
 
     def test_set_plc_time(self):
         payload = SetPlcTimeReqDTO()
@@ -95,6 +149,8 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, SetPlcTimeResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertEqual(response.response.Status, "Success")
+        self.assertIsInstance(response.response.Value, (float, datetime))
 
     def test_get_tag_list(self):
         payload = GetTagListReqDTO(
@@ -104,6 +160,11 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, GetTagListResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertEqual(response.response.Status, "Success")
+        self.assertIsInstance(response.response.Value, list)
+        if isinstance(response.response.Value, list):
+            for i in response.response.Value:
+                self.assertIsInstance(i, PLCTagDTO)
 
     def test_get_program_tag_list(self):
         payload = GetProgramTagListReqDTO(
@@ -113,6 +174,11 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, GetProgramTagListResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertEqual(response.response.Status, "Success")
+        self.assertIsInstance(response.response.Value, list)
+        if isinstance(response.response.Value, list):
+            for i in response.response.Value:
+                self.assertIsInstance(i, PLCTagDTO)
 
     def test_get_programs_list(self):
         payload = GetProgramsListReqDTO()
@@ -120,6 +186,13 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, GetProgramsListResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertEqual(response.response.Status, "Success")
+        self.assertIsInstance(response.response.Value, list)
+        if isinstance(response.response.Value, list):
+            for i in response.response.Value:
+                self.assertIsInstance(i, str)
+        else:
+            self.assertIsInstance(response.response.Value, str)
 
 
     def test_discover(self):
@@ -128,6 +201,13 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, DiscoverResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertEqual(response.response.Status, "Success")
+        self.assertIsInstance(response.response.Value, list)
+        if isinstance(response.response.Value, list):
+            for i in response.response.Value:
+                self.assertIsInstance(i, PLCDeviceDTO)
+        else:
+            self.assertIsInstance(response.response.Value, PLCDeviceDTO)
 
     def test_get_module_properties(self):
         payload = GetModulePropertiesReqDTO(
@@ -137,6 +217,8 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, GetModulePropertiesResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertEqual(response.response.Status, "Success")
+        self.assertIsInstance(response.response.Value, PLCDeviceDTO)
 
     def test_get_device_properties(self):
         payload = GetDevicePropertiesReqDTO()
@@ -144,6 +226,8 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response, GetDevicePropertiesResDTO)
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
+        self.assertEqual(response.response.Status, "Success")
+        self.assertIsInstance(response.response.Value, PLCDeviceDTO)
 
     def tearDown(self) -> None:
         return super().tearDown()

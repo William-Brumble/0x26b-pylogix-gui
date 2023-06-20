@@ -5,7 +5,7 @@ from string import ascii_letters
 from random import randint, getrandbits, choice
 from logging import getLogger, NullHandler
 
-logger = getLogger()
+logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
 from models import (

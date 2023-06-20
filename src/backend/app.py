@@ -20,7 +20,7 @@ from models import (
         GetDevicePropertiesReqDTO, GetDevicePropertiesResDTO
 )
 
-logger = getLogger()
+logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
 def common_exception_handler(ResponseClass):
@@ -42,6 +42,7 @@ def common_connection_protection(ResponseClass):
             if self._plc:
                 return f(self, *args, **kwargs)
             else:
+                logger.warning(f"412 Precondition Failed: You must be connected to a PLC before sending a request")
                 return ResponseClass(error=True, status="412 Precondition Failed", error_message="You must be connected to a PLC before sending a request")
         return modified_f
     return wrap
@@ -82,8 +83,8 @@ class App:
     @common_exception_handler(GetConnectionSizeResDTO)
     @common_connection_protection(GetConnectionSizeResDTO)
     def get_connection_size(self, req: GetConnectionSizeReqDTO) -> GetConnectionSizeResDTO:
-        self._plc.ConnectionSize 
-        return GetConnectionSizeResDTO(error=False, status="200 OK")
+        connection_size = self._plc.ConnectionSize
+        return GetConnectionSizeResDTO(error=False, status="200 OK", connection_size=connection_size)
 
     @common_exception_handler(SetConnectionSizeResDTO)
     @common_connection_protection(SetConnectionSizeResDTO)

@@ -3,7 +3,7 @@ from logging import getLogger, NullHandler
 from pylogix import PLC as RealPylogixPLC
 
 from mocklogix import PLC as MockPylogixPLC
-from utils import common_exception_handler
+from utils import common_exception_handler, common_connection_protection
 from models import (
         ResponseDTO, PLCResponseDTO,
         ConnectReqDTO, ConnectResDTO,
@@ -25,30 +25,24 @@ from models import (
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
-def common_connection_protection(ResponseClass):
-    """ Returns error message if not connected to a PLC """
-    def wrap(f):
-        def modified_f(self, *args, **kwargs):
-            if self._plc:
-                return f(self, *args, **kwargs)
-            else:
-                logger.warning(f"412 Precondition Failed: You must be connected to a PLC before sending a request")
-                return StatusDTO(error=True, status="412 Precondition Failed", error_message="You must be connected to a PLC before sending a request")
-        return modified_f
-    return wrap
 
 class App:
 
     def __init__(self, simulate: bool = False):
         self._simulate = simulate
-        self._plc: MockPylogixPLC | RealPylogixPLC | None = None
+        self._plc: MockPylogixPLC | RealPylogixPLC = None
 
     def initialize(self):
         return True
 
-    @common_exception_handler(ConnectResDTO)
     def connect(self, req: ConnectReqDTO) -> ConnectResDTO:
+        logger.debug(f"Connect called with: {req}")
+
+        logger.debug("Checking to see if simulate mode is enabled")
         if self._simulate:
+            logger.debug("Simulate mode is enabled")
+
+            logger.debug("Creating mock plc object")
             self._plc = MockPylogixPLC(
                     ip_address=req.ip_address,
                     slot=req.slot,
@@ -56,55 +50,73 @@ class App:
                     Micro800=req.Micro800
             )
         else:
+            logger.debug("Simulate mode is not enabled")
+
+            logger.debug("Creating real plc object")
             self._plc = RealPylogixPLC(
                     ip_address=req.ip_address,
                     slot=req.slot,
                     timeout=req.timeout,
                     Micro800=req.Micro800
             )
-        return ConnectResDTO(error=False, status="200 OK")
 
-    @common_exception_handler(CloseResDTO)
-    @common_connection_protection(CloseResDTO)
+        return ConnectResDTO(status="200 OK")
+
+    @common_connection_protection
     def close(self, req: CloseReqDTO) -> CloseResDTO:
+        logger.debug(f"Close called with: {req}")
+
+        logger.debug(f"Closing the connection to the PLC")
         self._plc.Close()
-        return CloseResDTO(error=False, status="200 OK")
+        self._plc = None
 
-    @common_exception_handler(GetConnectionSizeResDTO)
-    @common_connection_protection(GetConnectionSizeResDTO)
+        return CloseResDTO(status="200 OK")
+
+    @common_connection_protection
     def get_connection_size(self, req: GetConnectionSizeReqDTO) -> GetConnectionSizeResDTO:
+        logger.debug(f"Get connection size called with: {req}")
+
         connection_size = self._plc.ConnectionSize
-        return GetConnectionSizeResDTO(error=False, status="200 OK", connection_size=connection_size)
+        logger.debug(f"Got response: {connection_size}")
 
-    @common_exception_handler(SetConnectionSizeResDTO)
-    @common_connection_protection(SetConnectionSizeResDTO)
+        return GetConnectionSizeResDTO(status="200 OK", connection_size=connection_size)
+
+    @common_connection_protection
     def set_connection_size(self, req: SetConnectionSizeReqDTO) -> SetConnectionSizeResDTO:
-        self._plc.ConnectionSize = req.connection_size
-        return SetConnectionSizeResDTO(error=False, status="200 OK")
+        logger.debug(f"Set connection size called with: {req}")
 
-    @common_exception_handler(ReadResDTO)
-    @common_connection_protection(ReadResDTO)
+        logger.debug(f"Setting the connection size")
+        self._plc.ConnectionSize = req.connection_size
+
+        return SetConnectionSizeResDTO(status="200 OK")
+
+    @common_connection_protection
     def read(self, req: ReadReqDTO) -> ReadResDTO:
         """ At the moment we are only implementing reading a single tag. """
         logger.debug(f"Read called with: {req}")
+
         responses = self._plc.Read(req.tag, req.count, req.datatype)
         logger.debug(f"Got the following response: {responses}")
+
         payload = self._process_plc_response(responses)
         logger.debug(f"Processed the following response: {payload}")
+
         return ReadResDTO(
             status="200 OK",
             responses=payload
         )
 
-    @common_exception_handler(WriteResDTO)
-    @common_connection_protection(WriteResDTO)
+    @common_connection_protection
     def write(self, req: WriteReqDTO) -> WriteResDTO:
         """ At the moment we are only implementing writing a single tag. """
         logger.debug(f"Write called with: {req}")
+
         responses = self._plc.Write(req.tag, req.value, req.datatype)
         logger.debug(f"Got the following response: {responses}")
+
         payload = self._process_plc_response(responses)
         logger.debug(f"Processed the following response: {payload}")
+
         return WriteResDTO(
             status="200 OK",
             responses=payload
@@ -117,100 +129,120 @@ class App:
 
         logger.debug("Checking if the input responses is a list")
         if isinstance(responses, list):
+
             logger.debug("Input responses is a list")
             for response in responses:
-                logger.debug("Checking to see if the response was a success")
-                if response.Status == "Success":
-                    logger.debug("The response was successful")
-                    temp = ResponseDTO(
-                        tag=response.TagName,
-                        value=response.Value,
-                        status=response.Status,
-                        error=False 
-                    )
-                    logger.debug(f"Adding the response to the list: {temp}")
-                    payload.append(temp)
-                else:
-                    logger.debug("The response was not successful")
-                    temp = ResponseDTO(
-                        tag=response.TagName,
-                        value=response.Value,
-                        status=response.Status,
-                        error=True
-                    )
-                    logger.debug(f"Adding the response to the list: {temp}")
-                    payload.append(temp)
+
+                output = self._process_individual(response)
+
+                logger.debug(f"Adding one of the responses to the list: {output}")
+                payload.append(output)
+
         else:
             logger.debug("Input responses is not a list")
-            logger.debug("Checking to see if the response was a success")
-            if responses.Status == "Success":
-                logger.debug("The response was successful")
-                response = ResponseDTO(
-                        tag=responses.TagName,
-                        value=responses.Value,
-                        status=responses.Status,
-                        error=False
-                )
-                logger.debug(f"Adding the response to the list: {response}")
-                payload = [response,]
-            else:
-                logger.debug("The response was not successful")
-                response = ResponseDTO(
-                        tag=responses.TagName,
-                        value=responses.Value,
-                        status=responses.Status,
-                        error=True
-                )
-                logger.debug(f"Adding the response to the list: {response}")
-                payload = [response,]
+
+            output = self._process_individual(responses)
+
+            logger.debug(f"Adding the response to the list: {output}")
+            payload.append(output)
+
         logger.debug(f"Processing finished with the following payload: {payload}")
         return payload
 
-    @common_exception_handler(GetPlcTimeResDTO)
-    @common_connection_protection(GetPlcTimeResDTO)
+    def _process_individual(self, input_response: PLCResponseDTO):
+        logger.debug(f"Process individual called with: {input_response}")
+
+        response_values = {
+            "tag": input_response.TagName,
+            "value": input_response.Value,
+            "status": input_response.Status,
+        }
+
+        logger.debug("Checking to see if the response was a success")
+        if input_response.Status == "Success":
+
+            logger.debug("The response was successful")
+            response = ResponseDTO(error=False, **response_values)
+
+            logger.debug(f"Adding the response to the list: {response}")
+
+        else:
+
+            logger.debug("The response was not successful")
+            response = ResponseDTO(error=True, **response_values)
+
+        return response
+
+    @common_connection_protection
     def get_plc_time(self, req: GetPlcTimeReqDTO) -> GetPlcTimeResDTO:
+        logger.debug(f"Get plc time called with: {req}")
+
         response = self._plc.GetPLCTime(raw=req.raw)
+        logger.debug(f"Got response: {response}")
+
         return GetPlcTimeResDTO(error=False, status="200 OK", response=response)
 
-    @common_exception_handler(SetPlcTimeResDTO)
-    @common_connection_protection(SetPlcTimeResDTO)
+    @common_connection_protection
     def set_plc_time(self, req: SetPlcTimeReqDTO) -> SetPlcTimeResDTO:
+        logger.debug(f"Set plc time called with: {req}")
+
         response = self._plc.SetPLCTime()
+        logger.debug(f"Got response: {response}")
+
         return SetPlcTimeResDTO(error=False, status="200 OK", response=response)
 
-    @common_exception_handler(GetTagListResDTO)
-    @common_connection_protection(GetTagListResDTO)
+    @common_connection_protection
     def get_tag_list(self, req: GetTagListReqDTO) -> GetTagListResDTO:
+        logger.debug(f"Get tag list called with: {req}")
+
         response = self._plc.GetTagList(allTags=req.all_tags)
+        logger.debug(f"Got response: {response}")
+
         return GetTagListResDTO(error=False, status="200 OK", response=response)
 
-    @common_exception_handler(GetProgramTagListResDTO)
-    @common_connection_protection(GetProgramTagListResDTO)
+    @common_connection_protection
     def get_program_tag_list(self, req: GetProgramTagListReqDTO) -> GetProgramTagListResDTO:
+        logger.debug(f"Get program tag list called with: {req}")
+
         response = self._plc.GetProgramTagList(programName=req.program_name)
+        logger.debug(f"Got response: {response}")
+
         return GetProgramTagListResDTO(error=False, status="200 OK", response=response)
 
-    @common_exception_handler(GetProgramsListResDTO)
-    @common_connection_protection(GetProgramsListResDTO)
+    @common_connection_protection
     def get_programs_list(self, req: GetProgramsListReqDTO) -> GetProgramsListResDTO:
+        logger.debug(f"Get programs list called with: {req}")
+
         response = self._plc.GetProgramsList()
+        logger.debug(f"Got response: {response}")
+
         return GetProgramsListResDTO(error=False, status="200 OK", response=response)
 
-    @common_exception_handler(DiscoverResDTO)
-    @common_connection_protection(DiscoverResDTO)
+    @common_connection_protection
     def discover(self, req: DiscoverReqDTO) -> DiscoverResDTO:
+        logger.debug(f"Discover called with: {req}")
+
         response = self._plc.Discover()
+        logger.debug(f"Got response: {response}")
+
         return DiscoverResDTO(error=False, status="200 OK", response=response)
 
-    @common_exception_handler(GetModulePropertiesResDTO)
-    @common_connection_protection(GetModulePropertiesResDTO)
+    @common_connection_protection
     def get_module_properties(self, req: GetModulePropertiesReqDTO) -> GetModulePropertiesResDTO:
+        logger.debug(f"Get module properties called with: {req}")
+
         response = self._plc.GetModuleProperties(slot=req.slot)
+        logger.debug(f"Got response: {response}")
+
         return GetModulePropertiesResDTO(error=False, status="200 OK", response=response)
 
-    @common_exception_handler(GetDevicePropertiesResDTO)
-    @common_connection_protection(GetDevicePropertiesResDTO)
+    @common_connection_protection
     def get_device_properties(self, req: GetDevicePropertiesReqDTO) -> GetDevicePropertiesResDTO:
+        logger.debug(f"Get device properties called with: {req}")
+
         response = self._plc.GetDeviceProperties()
+
+        logger.debug(f"Got response: {response}")
+
         return GetDevicePropertiesResDTO(error=False, status="200 OK", response=response)
 

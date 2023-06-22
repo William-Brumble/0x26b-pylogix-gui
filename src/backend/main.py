@@ -13,8 +13,6 @@ formatter = Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-logger.debug("TESTING 123")
-
 if __name__ == '__main__':
     logger.debug("The application had started")
 

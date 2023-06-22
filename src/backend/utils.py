@@ -1,7 +1,7 @@
 import json
 import webview
 from flask import jsonify, request
-from dataclasses import asdict
+from dataclasses import asdict, fields
 from logging import getLogger, NullHandler
 
 from models import StatusDTO
@@ -38,10 +38,18 @@ def common_payload_protection(PayloadClass):
         def modified_f(self, *args, **kwargs):
             logger.debug("Checking to see if the payload in the request matches what the route needs")
             try:
+                payload_class_field_names = [field.name for field in fields(PayloadClass)] 
                 data = json.loads(request.data)
+                logger.debug(f"Request payload: {data}")
+                logger.debug(f"Needed payload fields: {payload_class_field_names}")
                 PayloadClass(**data)
                 logger.debug("Payload matches all is well")
-                return f(self, *args, **kwargs)
+                try:
+                    response = f(self, *args, **kwargs)
+                    return response
+                except Exception as e:
+                    logger.error(f"Exception: {e}")
+                    raise e
             except TypeError:
                 logger.error("The payload in the request doesn't match what's needed by the route")
                 payload = StatusDTO(error=True, status="400 Bad Request", error_message="Incorrect json data")
@@ -62,7 +70,11 @@ def common_token_protection(f):
 
         if token == webview.token:
             logger.debug("Token matches all is well")
-            return f(self, *args, **kwargs)
+            try:
+                return f(self, *args, **kwargs)
+            except Exception as e:
+                logger.error(f"Exception: {e}")
+                raise e
         else:
             logger.error("The request token doesn't match the server token")
             payload = StatusDTO(status="401 Unauthorized", error=True, error_message="Incorrect token supplied")

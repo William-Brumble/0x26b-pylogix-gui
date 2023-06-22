@@ -130,7 +130,7 @@ class PLCDeviceDTO:
         props += 'VendorID={}, '.format(self.VendorID)
         props += 'Vendor={}, '.format(self.Vendor)
         props += 'DeviceID={}, '.format(self.DeviceID)
-        props += 'DeviceType={}, '.format(self.DeviceType)
+        props += 'DeviceType={}, '.format(self.DeviceType or "")
         props += 'ProductCode={}, '.format(self.ProductCode)
         props += 'Revision={}, '.format(self.Revision)
         props += 'Status={}, '.format(self.Status)
@@ -148,7 +148,7 @@ class PLCDeviceDTO:
                  self.VendorID,
                  self.Vendor,
                  self.DeviceID,
-                 self.DeviceType,
+                 self.DeviceType or "",
                  self.ProductCode,
                  self.Revision,
                  self.Status,
@@ -156,6 +156,7 @@ class PLCDeviceDTO:
                  self.ProductNameLength,
                  self.ProductName,
                  self.State)
+        return ret
 
 @dataclass(kw_only=True)
 class PLCResponseDTO(StatusDTO):
@@ -165,21 +166,28 @@ class PLCResponseDTO(StatusDTO):
 
     def __repr__(self):
         return 'Response(TagName={}, Value={}, Status={})'.format(
-            self.TagName, self.Value, self.Status)
+            self.TagName or "", self.Value or "", self.Status or "")
 
     def __str__(self):
-        return '{} {} {}'.format(self.TagName or "", self.Value, self.Status)
+        return '{} {} {}'.format(self.TagName or "", self.Value or "", self.Status or "")
 
 @dataclass(kw_only=True)
 class ResponseDTO(StatusDTO):
-    tag: str | None
-    value: bool | int | str | list[str] | float | datetime | list[PLCTagDTO] | PLCDeviceDTO | list[PLCDeviceDTO] | None
-    status: str | None
+    TagName: str | None
+    Value: bool | int | str | list[str] | float | datetime | list[PLCTagDTO] | PLCDeviceDTO | list[PLCDeviceDTO] | None
+    Status: str | None
     error: bool
+
+    def __repr__(self):
+        return 'ResponseDTO(tag={}, value={}, status={}, error={})'.format(
+            self.TagName, self.Value, self.Status, self.error)
+
+    def __str__(self):
+        return '{} {} {} {}'.format(self.TagName or "", self.Value or "", self.Status or "", self.error)
 
 @dataclass(kw_only=True)
 class ReadResDTO(StatusDTO):
-    responses: list[ResponseDTO]
+    response: list[ResponseDTO]
 
 @dataclass(kw_only=True)
 class WriteReqDTO(RequestDTO):
@@ -189,7 +197,7 @@ class WriteReqDTO(RequestDTO):
 
 @dataclass(kw_only=True)
 class WriteResDTO(StatusDTO):
-    responses: list[ResponseDTO]
+    response: list[ResponseDTO]
 
 @dataclass(kw_only=True)
 class GetPlcTimeReqDTO(RequestDTO):

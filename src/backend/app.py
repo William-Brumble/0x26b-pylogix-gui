@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from logging import getLogger, NullHandler
 from pylogix import PLC as RealPylogixPLC
 
@@ -103,7 +102,7 @@ class App:
 
         return ReadResDTO(
             status="200 OK",
-            responses=payload
+            response=payload
         )
 
     @common_connection_protection
@@ -119,7 +118,7 @@ class App:
 
         return WriteResDTO(
             status="200 OK",
-            responses=payload
+            response=payload
         )
 
     def _process_plc_response(self, responses: PLCResponseDTO | list[PLCResponseDTO]) -> list[ResponseDTO]:
@@ -152,24 +151,28 @@ class App:
     def _process_individual(self, input_response: PLCResponseDTO):
         logger.debug(f"Process individual called with: {input_response}")
 
-        response_values = {
-            "tag": input_response.TagName,
-            "value": input_response.Value,
-            "status": input_response.Status,
-        }
-
         logger.debug("Checking to see if the response was a success")
         if input_response.Status == "Success":
 
             logger.debug("The response was successful")
-            response = ResponseDTO(error=False, **response_values)
+            response = ResponseDTO(
+                error=False,
+                TagName=input_response.TagName,
+                Value=input_response.Value,
+                Status=input_response.Status
+            )
 
             logger.debug(f"Adding the response to the list: {response}")
 
         else:
 
             logger.debug("The response was not successful")
-            response = ResponseDTO(error=True, **response_values)
+            response = ResponseDTO(
+                error=True, 
+                TagName=input_response.TagName,
+                Value=input_response.Value,
+                Status=input_response.Status
+            )
 
         return response
 
@@ -232,6 +235,7 @@ class App:
         logger.debug(f"Get module properties called with: {req}")
 
         response = self._plc.GetModuleProperties(slot=req.slot)
+
         logger.debug(f"Got response: {response}")
 
         return GetModulePropertiesResDTO(error=False, status="200 OK", response=response)

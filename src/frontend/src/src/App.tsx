@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+// @ts-ignore
+import React from 'react'
 import './App.css'
 
 // TODO: Create interfaces for the handler events.

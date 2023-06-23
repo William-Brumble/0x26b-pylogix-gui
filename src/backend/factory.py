@@ -3,15 +3,31 @@ import webview
 from flask import Flask
 from io import StringIO
 from contextlib import redirect_stdout
-from logging import getLogger, NullHandler
+from logging import getLogger, NullHandler, StreamHandler, DEBUG, Formatter
 
 from app import App
 from server import Server
 
-logger = getLogger()
+logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
 class Factory:
+
+    @staticmethod
+    def create_root_logger():
+        root_logger = getLogger()
+        root_logger.addHandler(NullHandler())
+        root_logger.setLevel(DEBUG)
+        return root_logger
+
+    @staticmethod
+    def create_stream_logger(logger):
+        ch = StreamHandler()
+        ch.setLevel(DEBUG)
+        formatter = Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+        return logger
 
     @staticmethod
     def create_app(simulate: bool = False):
@@ -23,9 +39,9 @@ class Factory:
     def create_server(application: App):
         logger.debug(f"Creating the server with application: {application}")
 
-        gui_dir = os.path.join(os.path.dirname(__file__), '..', 'frontend')  # development path
+        gui_dir = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')  # development path
         if not os.path.exists(gui_dir):  # frozen executable path
-            gui_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend')
+            gui_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend' , 'dist')
         logger.debug(f"gui_dir set to: {gui_dir}")
 
         flask_server = Server(frontend_path=gui_dir, application=application)
@@ -39,7 +55,8 @@ class Factory:
         with redirect_stdout(stream):
             window = webview.create_window(window_name, server, http_port=server_port)
 
-        webview.token = "test"
+        if token: # this is optional, if not provided it's a random port
+            webview.token = token
 
         return window
 

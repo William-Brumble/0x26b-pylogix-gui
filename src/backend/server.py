@@ -45,7 +45,7 @@ class Server:
         def __add_header(response):
             return self.add_header(response)
 
-        @self.flask_app.route("/", methods = ['POST'])
+        @self.flask_app.route("/")
         def __landing():
             logger.debug("-" * 80)
             logger.debug("Flask landing route fired")

@@ -1,10 +1,16 @@
 import webview
+import argparse
 
 from factory import Factory
 
 import os
 import sys
 
+# Create the argument parser
+parser = argparse.ArgumentParser(description='Pylogix GUI')
+parser.add_argument('-p', '--port', default=65535, help='Port for the server to listen on')
+parser.add_argument('--simulate', action="store_true", help='Simulate a connection to a PLC')
+args = parser.parse_args()
 
 def log_startup_information():
     frozen = 'not'
@@ -31,13 +37,13 @@ if __name__ == '__main__':
     log_startup_information()
 
     logger.debug("Using the factory to create the app")
-    application = Factory.create_app(simulate=True)
+    application = Factory.create_app(simulate=args.simulate)
 
     logger.debug("Using the factory to create the server")
     server = Factory.create_server(application=application)
 
     logger.debug("Using the factory to create the window")
-    window = Factory.create_window(server=server.flask_app, server_port=5000, token="test", window_name="pylogix")
+    window = Factory.create_window(server=server.flask_app, server_port=args.port, window_name="pylogix")
 
     webview.start(debug=True)
 

@@ -16,6 +16,11 @@ textarea {
   width: 100%;
 }
 
+select {
+  grid-column: 1;
+  width: 100%;
+}
+
 input[type="submit"] {
   width: auto;
   padding: 5px 10px;

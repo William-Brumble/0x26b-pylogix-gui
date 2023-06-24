@@ -1,0 +1,9 @@
+**/node_modules
+**/.hg
+**/.svn
+**/.svg
+**/.md
+**/.gitignore
+**/.png
+**/.ico
+**/.txt

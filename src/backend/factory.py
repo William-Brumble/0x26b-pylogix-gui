@@ -39,9 +39,7 @@ class Factory:
     def create_server(application: App):
         logger.debug(f"Creating the server with application: {application}")
 
-        gui_dir = os.path.join(os.path.dirname(__file__), '..', 'frontend', 'dist')  # development path
-        if not os.path.exists(gui_dir):  # frozen executable path
-            gui_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend' , 'dist')
+        gui_dir = os.path.join(os.path.dirname(__file__), 'dist')  # development path
         logger.debug(f"gui_dir set to: {gui_dir}")
 
         flask_server = Server(frontend_path=gui_dir, application=application)
@@ -49,14 +47,11 @@ class Factory:
         return flask_server
 
     @staticmethod
-    def create_window(server: Flask, server_port: int, token: str, window_name: str):
+    def create_window(server: Flask, server_port: int, window_name: str):
         logger.debug(f"Creating the window with server: {server}, and window_name: {window_name}")
         stream = StringIO()
         with redirect_stdout(stream):
             window = webview.create_window(window_name, server, http_port=server_port)
-
-        if token: # this is optional, if not provided it's a random port
-            webview.token = token
 
         return window
 

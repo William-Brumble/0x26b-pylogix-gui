@@ -2,7 +2,7 @@ import time
 from enum import Enum
 from datetime import datetime
 from string import ascii_letters
-from random import randint, getrandbits, choice
+from random import randint, getrandbits, choice, uniform
 from logging import getLogger, NullHandler
 
 logger = getLogger(__name__)
@@ -70,6 +70,8 @@ class PLC:
                         val = randint(-32768, 32767)
                     case _DataType.DINT:
                         val = randint(-2147483648, 2147483647)
+                    case _DataType.REAL:
+                        val = uniform(-162142900000000000000, 162142900000000000000)
                     case _DataType.STRING:
                         val = ''.join(choice(ascii_letters) for i in range(10))
                     case _:
@@ -88,6 +90,8 @@ class PLC:
                     val = randint(-32768, 32767)
                 case _DataType.DINT:
                     val = randint(-2147483648, 2147483647)
+                case _DataType.REAL:
+                    val = uniform(-162142900000000000000, 162142900000000000000)
                 case _DataType.STRING:
                     val = ''.join(choice(ascii_letters) for i in range(10))
                 case _:
@@ -117,11 +121,11 @@ class PLC:
         return PLCResponseDTO(TagName=None, Value=time.time(), Status="Success")
 
     def GetTagList(self, allTags: bool = True) -> PLCResponseDTO:
-        values=[
-                PLCTagDTO(TagName="tag-one"),
-                PLCTagDTO(TagName="tag-two"),
-                PLCTagDTO(TagName="tag-three")
-        ]
+        values: list[str] = []
+        for i in range(randint(1, 1000)):
+            values.append(
+                PLCTagDTO(TagName=f"tag-{i}")
+            )
         return PLCResponseDTO(
             TagName=None, 
             Value=values,
@@ -129,11 +133,11 @@ class PLC:
         )
 
     def GetProgramTagList(self, programName: str) -> PLCResponseDTO:
-        values=[
-                PLCTagDTO(TagName="Program:tag-one"),
-                PLCTagDTO(TagName="Program:tag-two"),
-                PLCTagDTO(TagName="Program:tag-three")
-        ]
+        values: list[str] = []
+        for i in range(randint(1, 1000)):
+            values.append(
+                PLCTagDTO(TagName=f"Program:{programName}.tag-{i}")
+            )
 
         return PLCResponseDTO(
             TagName=None, 
@@ -142,22 +146,21 @@ class PLC:
         )
 
     def GetProgramsList(self) -> PLCResponseDTO:
+        values: list[str] = []
+        for i in range(randint(1, 1000)):
+            values.append(f"Program:program-{i}")
         return PLCResponseDTO(
             TagName=None, 
-            Value=[
-                "Program:program-one",
-                "Program:program-two",
-                "Program:program-three"
-            ],
+            Value=values,
             Status="Success"
         )
 
     def Discover(self) -> PLCResponseDTO:
-        values=[
-                PLCDeviceDTO(IPAddress="192.168.1.100"),
-                PLCDeviceDTO(IPAddress="192.168.1.101"),
-                PLCDeviceDTO(IPAddress="192.168.1.102")
-        ]
+        values: list[PLCDeviceDTO] = []
+        for i in range(255):
+            values.append(
+                PLCDeviceDTO(IPAddress=f"192.168.1.{i + 1}"),
+            )
 
         return PLCResponseDTO(
             TagName=None, 
@@ -166,7 +169,7 @@ class PLC:
         )
 
     def GetModuleProperties(self, slot) -> PLCResponseDTO:
-        device = PLCDeviceDTO(IPAddress="192.168.1.100")
+        device = PLCDeviceDTO(IPAddress=f"192.168.1.{randint(1, 255)}")
         return PLCResponseDTO(
             TagName=None, 
             Value=device,
@@ -174,7 +177,7 @@ class PLC:
         )
 
     def GetDeviceProperties(self) -> PLCResponseDTO:
-        device = PLCDeviceDTO(IPAddress="192.168.1.100")
+        device = PLCDeviceDTO(IPAddress=self.IPAddress)
         return PLCResponseDTO(
             TagName=None, 
             Value=device,

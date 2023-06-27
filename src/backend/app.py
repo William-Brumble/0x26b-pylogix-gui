@@ -4,6 +4,7 @@ from pylogix import PLC as RealPylogixPLC
 from mocklogix import PLC as MockPylogixPLC
 from utils import common_exception_handler, common_connection_protection
 from models import (
+        PLCConnectionSizeDTO,
         ResponseDTO, PLCResponseDTO,
         ConnectReqDTO, ConnectResDTO,
         CloseReqDTO, CloseResDTO,
@@ -78,7 +79,9 @@ class App:
         connection_size = self._plc.ConnectionSize
         logger.debug(f"Got response: {connection_size}")
 
-        return GetConnectionSizeResDTO(status="200 OK", connection_size=connection_size)
+        response = PLCConnectionSizeDTO(connection_size=connection_size)
+
+        return GetConnectionSizeResDTO(status="200 OK", response=response) 
 
     @common_connection_protection
     def set_connection_size(self, req: SetConnectionSizeReqDTO) -> SetConnectionSizeResDTO:

@@ -35,8 +35,12 @@ class GetConnectionSizeReqDTO(RequestDTO):
     pass
 
 @dataclass(kw_only=True)
-class GetConnectionSizeResDTO(StatusDTO):
+class PLCConnectionSizeDTO(StatusDTO):
     connection_size: int | None
+
+@dataclass(kw_only=True)
+class GetConnectionSizeResDTO(StatusDTO):
+    response: PLCConnectionSizeDTO
 
 @dataclass(kw_only=True)
 class SetConnectionSizeReqDTO(RequestDTO):

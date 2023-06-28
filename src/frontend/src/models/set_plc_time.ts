@@ -1,4 +1,4 @@
-export interface ISetPlcTime {
+export interface ISetPlcTimeReq {
     token: string;
 }
 

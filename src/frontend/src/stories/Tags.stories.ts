@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Tags } from "@/pages/Tags.tsx";
+import { Tags } from "@/pages/ManualOperation.tsx";
 
 const meta = {
     title: "pages/tags",

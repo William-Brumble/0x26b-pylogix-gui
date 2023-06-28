@@ -7,8 +7,7 @@ export interface IWriteReq {
     datatype: number;
 }
 
-// response
-export interface IWriteResDTO {
+export interface IWriteRes {
     error: boolean;
     error_message: string;
     status: string;

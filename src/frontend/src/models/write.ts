@@ -3,7 +3,7 @@ import { IPylogixResponse } from "@/models/pylogix.ts";
 export interface IWriteReq {
     token: string;
     tag: string;
-    value: number | string;
+    value: number;
     datatype: number;
 }
 

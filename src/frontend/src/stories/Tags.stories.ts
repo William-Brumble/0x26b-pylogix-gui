@@ -1,3 +1,4 @@
+/*
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { Tags } from "@/pages/ManualOperation.tsx";
@@ -13,3 +14,4 @@ type Story = StoryObj<typeof meta>;
 export const Primary: Story = {
     args: {},
 };
+*/

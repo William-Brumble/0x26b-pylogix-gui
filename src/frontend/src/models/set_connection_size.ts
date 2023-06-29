@@ -1,6 +1,6 @@
 export interface ISetConnectionSizeReq {
     token: string;
-    connection_size: string;
+    connection_size: number;
 }
 
 export interface ISetConnectionSizeRes {

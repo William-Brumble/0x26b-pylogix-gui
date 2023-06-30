@@ -22,40 +22,30 @@ interface CustomForm extends HTMLFormElement {
 }
 
 export function GetPlcTime({ token }: IGetPlcTime) {
-    const [formState, setFormState] = useState({
-        raw: false,
-    });
+    const [raw, setRaw] = useState(false);
     const [resText, setResText] = useState("");
 
     const handleGetPlcTime = async (event: FormEvent<CustomForm>) => {
         event.preventDefault();
 
-        const target = event.currentTarget.elements;
-
         const msg: IGetPlcTimeReq = {
             token: token,
-            raw: target.raw.checked,
+            raw: raw,
         };
 
-        setFormState(msg);
-
         const response = await getPlcTime(msg);
-
-        const result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.error_message: ${response.error_message}
-        response.status: ${response.status}
-        PYLOGIX RESPONSE
-        response.Status: ${response.Status}
-        response.TagName: ${response.TagName}
-        response.Value: ${response.Value}`;
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    const handleRawChanged = (_: any) => {
+        setRaw(!raw);
+    };
+
+    return (
+        <>
+            <AccordionItemWrapper title="Get plc time">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     Retrieve the controller clock time and obtain it in a
                     human-readable format (default) or in raw format if the raw
@@ -70,7 +60,11 @@ export function GetPlcTime({ token }: IGetPlcTime) {
                     onSubmit={handleGetPlcTime}
                 >
                     <div className="flex w-full items-center space-x-2 text-foreground pb-4">
-                        <Checkbox name="raw" checked={formState.raw} />
+                        <Checkbox
+                            name="raw"
+                            onCheckedChange={handleRawChanged}
+                            checked={raw}
+                        />
                         <Label
                             htmlFor="raw"
                             className="text-foreground text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -87,13 +81,7 @@ export function GetPlcTime({ token }: IGetPlcTime) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper title="Get plc time" children={<Form />} />
+            </AccordionItemWrapper>
         </>
     );
 }

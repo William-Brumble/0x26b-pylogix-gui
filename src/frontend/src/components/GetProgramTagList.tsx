@@ -22,52 +22,30 @@ interface CustomForm extends HTMLFormElement {
 }
 
 export function GetProgramTagList({ token }: IGetProgramTagList) {
-    const [formState, setFormState] = useState({
-        token: "",
-        program_name: "",
-    });
+    const [programName, setProgramName] = useState("");
     const [resText, setResText] = useState("");
 
     const handleGetProgramTagList = async (event: FormEvent<CustomForm>) => {
         event.preventDefault();
 
-        const target = event.currentTarget.elements;
-
         const msg: IGetProgramTagListReq = {
             token: token,
-            program_name: target.program_name.value,
+            program_name: programName,
         };
 
-        setFormState(msg);
-
         const response = await getProgramTagList(msg);
-
-        let result = `BACKEND RESPONSE
-        error: ${response.error}
-        error_message: ${response.error_message}
-        status: ${response.status}
-        PYLOGIX RESPONSE
-        Status: ${response.Status}
-        TagName: ${response.TagName}`;
-        for (let i = 0; i < response.Value.length; i++) {
-            result += `---
-            TAG: ${i}
-            Array: ${response.Value[i].Array}
-            DataType: ${response.Value[i].DataType}
-            DataTypeValue: ${response.Value[i].DataTypeValue}
-            InstanceID: ${response.Value[i].InstanceID}
-            Size: ${response.Value[i].Size}
-            Struct: ${response.Value[i].Struct}
-            SymbolType: ${response.Value[i].SymbolType}
-            TagName: ${response.Value[i].TagName}`;
-        }
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    const handleProgramNameChange = (event: any) => {
+        setProgramName(event.target.value);
+    };
+
+    return (
+        <>
+            <AccordionItemWrapper title="Get program tag list">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     Retrieve a program tag list from the PLC using the
                     programName parameter ("Program:ExampleProgram"). The
@@ -89,7 +67,8 @@ export function GetProgramTagList({ token }: IGetProgramTagList) {
                             type="text"
                             name="program_name"
                             placeholder="program name"
-                            defaultValue={formState.program_name}
+                            value={programName}
+                            onInput={handleProgramNameChange}
                         />
                     </div>
                     <Button
@@ -101,16 +80,7 @@ export function GetProgramTagList({ token }: IGetProgramTagList) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper
-                title="Get program tag list"
-                children={<Form />}
-            />
+            </AccordionItemWrapper>
         </>
     );
 }

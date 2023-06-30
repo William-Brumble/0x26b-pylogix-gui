@@ -22,18 +22,14 @@ export function Close({ token }: IClose) {
         };
 
         const response = await close(msg);
-
-        const result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.status: ${response.status}
-        response.error_message: ${response.error_message}`;
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    return (
+        <>
+            <AccordionItemWrapper title="Close">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     Terminate the connection to the Programmable Logic
                     Controller (PLC).
@@ -51,13 +47,7 @@ export function Close({ token }: IClose) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper title="Close" children={<Form />} />
+            </AccordionItemWrapper>
         </>
     );
 }

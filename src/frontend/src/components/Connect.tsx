@@ -51,13 +51,25 @@ export function Connect({ token }: IConnect) {
         };
 
         const response = await connect(msg);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
+    };
 
-        const result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.status: ${response.status}
-        response.error_message: ${response.error_message}`;
+    const handleIpAddressChange = (event: any) => {
+        setIpAddress(event.target.value);
+    };
 
-        setResText(result);
+    const handleSlotChange = (event: any) => {
+        setSlot(parseInt(event.target.value));
+    };
+
+    const handleTimeoutChange = (event: any) => {
+        setTimeout(parseInt(event.target.value));
+    };
+
+    const handleMicro800Change = (_: any) => {
+        setMicro800(!Micro800);
     };
 
     return (
@@ -83,9 +95,7 @@ export function Connect({ token }: IConnect) {
                             name="ip_address"
                             placeholder="ip address"
                             value={ipAddress}
-                            onInput={(event) => {
-                                setIpAddress(event.target.value);
-                            }}
+                            onInput={handleIpAddressChange}
                             required
                         />
                     </div>
@@ -98,9 +108,7 @@ export function Connect({ token }: IConnect) {
                             name="slot"
                             placeholder="slot"
                             value={slot}
-                            onInput={(event) => {
-                                setSlot(parseInt(event.target.value));
-                            }}
+                            onInput={handleSlotChange}
                             required
                         />
                     </div>
@@ -113,9 +121,7 @@ export function Connect({ token }: IConnect) {
                             name="timeout"
                             placeholder="timeout"
                             value={timeout}
-                            onInput={(event) => {
-                                setTimeout(parseInt(event.target.value));
-                            }}
+                            onInput={handleTimeoutChange}
                             required
                         />
                     </div>
@@ -123,9 +129,7 @@ export function Connect({ token }: IConnect) {
                         <Checkbox
                             name="Micro800"
                             checked={Micro800}
-                            onCheckedChange={() => {
-                                setMicro800(!Micro800);
-                            }}
+                            onCheckedChange={handleMicro800Change}
                         />
                         <Label
                             htmlFor="Micro800"

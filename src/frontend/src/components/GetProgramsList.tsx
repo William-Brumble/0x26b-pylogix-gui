@@ -22,25 +22,14 @@ export function GetProgramsList({ token }: IGetProgramsList) {
         };
 
         const response = await getProgramsList(msg);
-
-        let result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.error_message: ${response.error_message}
-        response.status: ${response.status}
-        PYLOGIX RESPONSE
-        response.Status: ${response.Status}
-        response.TagName: ${response.TagName}
-        `;
-        for (let i = 0; i < response.Value.length; i++) {
-            result += `response.Value[${i}]: ${response.Value[i]}`;
-        }
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    return (
+        <>
+            <AccordionItemWrapper title="Get programs list">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     Retrieve a program names list from the PLC. Perform a sanity
                     check to verify if the programNames parameter is empty, and
@@ -60,16 +49,7 @@ export function GetProgramsList({ token }: IGetProgramsList) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper
-                title="Get programs list"
-                children={<Form />}
-            />
+            </AccordionItemWrapper>
         </>
     );
 }

@@ -22,36 +22,30 @@ interface CustomForm extends HTMLFormElement {
 }
 
 export function SetConnectionSize({ token }: ISetConnectionSize) {
-    const [formState, setFormState] = useState({
-        connection_size: 508,
-    });
+    const [connectionSizeVar, setConnectionSizeVar] = useState(508);
     const [resText, setResText] = useState("");
 
     const handleSetConnectionSize = async (event: FormEvent<CustomForm>) => {
         event.preventDefault();
 
-        const target = event.currentTarget.elements;
-
         const msg: ISetConnectionSizeReq = {
             token: token,
-            connection_size: parseInt(target.connection_size.value),
+            connection_size: connectionSizeVar,
         };
 
-        setFormState(msg);
-
         const response = await setConnectionSize(msg);
-
-        const result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.status: ${response.status}
-        response.error_message: ${response.error_message}`;
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    const handleConnectionSizeChange = (event: any) => {
+        setConnectionSizeVar(parseInt(event.target.value));
+    };
+
+    return (
+        <>
+            <AccordionItemWrapper title="Set connection size">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     Please ensure to appropriately configure the
                     "ConnectionSize" parameter prior to initiating the first
@@ -76,7 +70,8 @@ export function SetConnectionSize({ token }: ISetConnectionSize) {
                             type="number"
                             name="connection_size"
                             placeholder="connection size"
-                            defaultValue={formState.connection_size}
+                            value={connectionSizeVar}
+                            onInput={handleConnectionSizeChange}
                         />
                     </div>
                     <Button
@@ -88,16 +83,7 @@ export function SetConnectionSize({ token }: ISetConnectionSize) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper
-                title="Set connection size"
-                children={<Form />}
-            />
+            </AccordionItemWrapper>
         </>
     );
 }

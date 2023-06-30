@@ -31,13 +31,9 @@ interface CustomForm extends HTMLFormElement {
 }
 
 export function Read({ token }: IRead) {
-    const [formState, setFormState] = useState({
-        token: "",
-        tag: "",
-        count: 1,
-        datatype: 195,
-    });
-    const [selectedValue, setSelectedValue] = useState("0xc3");
+    const [tag, setTag] = useState("");
+    const [count, setCount] = useState(1);
+    const [datatype, setDatatype] = useState("0xc3");
     const [resText, setResText] = useState("");
 
     const handleRead = async (event: FormEvent<CustomForm>) => {
@@ -52,29 +48,27 @@ export function Read({ token }: IRead) {
             datatype: parseInt(target.datatype.value),
         };
 
-        setFormState(msg);
-
         const response = await read(msg);
-
-        let result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.error_message: ${response.error_message}
-        response.status: ${response.status}
-        PYLOGIX RESPONSE`;
-        for (let i = 0; i < response.response.length; i++) {
-            result += `---
-            TAG: ${i}
-            response.response[${i}}].Status: ${response.response[i].Status}
-            response.response[${i}}].TagName: ${response.response[i].TagName}
-            response.response[${i}}].Value: ${response.response[i].Value}`;
-        }
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    const handleTagChange = (event: any) => {
+        setTag(event.target.value);
+    };
+
+    const handleCountChange = (event: any) => {
+        setCount(parseInt(event.target.value));
+    };
+
+    const handleDatatypeChange = (event: any) => {
+        setDatatype(event);
+    };
+
+    return (
+        <>
+            <AccordionItemWrapper title="Read">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     The function offers two reading options: retrieving a single
                     tag or an array of tags. It returns a Response instance with
@@ -98,7 +92,8 @@ export function Read({ token }: IRead) {
                             type="text"
                             name="tag"
                             placeholder="tag"
-                            defaultValue={formState.tag}
+                            value={tag}
+                            onInput={handleTagChange}
                         />
                     </div>
                     <div className="grid w-full max-w-sm items-center gap-1.5">
@@ -112,7 +107,8 @@ export function Read({ token }: IRead) {
                             type="number"
                             name="count"
                             placeholder="count"
-                            defaultValue={formState.count}
+                            value={count}
+                            onInput={handleCountChange}
                             readOnly
                         />
                     </div>
@@ -125,10 +121,8 @@ export function Read({ token }: IRead) {
                         </Label>
                         <Select
                             name="datatype"
-                            value={selectedValue}
-                            onValueChange={(event: any) => {
-                                setSelectedValue(event);
-                            }}
+                            value={datatype}
+                            onValueChange={handleDatatypeChange}
                         >
                             <SelectTrigger className="text-foreground w-full max-w-sm">
                                 <SelectValue placeholder="Select a datatype" />
@@ -151,13 +145,7 @@ export function Read({ token }: IRead) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper title="Read" children={<Form />} />
+            </AccordionItemWrapper>
         </>
     );
 }

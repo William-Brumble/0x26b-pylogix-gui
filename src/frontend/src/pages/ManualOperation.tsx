@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { Separator } from "@/components/ui/separator.tsx";
 import { Close } from "@/components/Close.tsx";
 import { Connect } from "@/components/Connect.tsx";
@@ -14,11 +16,13 @@ import { SetConnectionSize } from "@/components/SetConnectionSize.tsx";
 import { SetPlcTime } from "@/components/SetPlcTime.tsx";
 import { Write } from "@/components/Write.tsx";
 
-export interface IManualOperation {
-    token: string;
-}
+export function ManualOperation() {
+    const [token, setToken] = useState("");
 
-export function ManualOperation({ token }: IManualOperation) {
+    useEffect(() => {
+        setToken(window?.pywebview?.token);
+    }, []);
+
     return (
         <div className="bg-background p-5">
             <h2 className="text-foreground mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">

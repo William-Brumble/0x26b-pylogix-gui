@@ -22,53 +22,30 @@ interface CustomForm extends HTMLFormElement {
 }
 
 export function GetModuleProperties({ token }: IGetModuleProperties) {
-    const [formState, setFormState] = useState({
-        slot: 0,
-    });
+    const [slot, setSlot] = useState(0);
     const [resText, setResText] = useState("");
 
     const handleGetModuleProperties = async (event: FormEvent<CustomForm>) => {
         event.preventDefault();
 
-        const target = event.currentTarget.elements;
-
         const msg: IGetModulePropertiesReq = {
             token: token,
-            slot: parseInt(target.slot.value),
+            slot: slot,
         };
 
-        setFormState(msg);
-
         const response = await getModuleProperties(msg);
-
-        const result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.status: ${response.status}
-        response.error_message: ${response.error_message}
-        PYLOGIX RESPONSE
-        ${response.response.Status}
-        ${response.response.TagName}
-        DEVICE
-        DeviceID: ${response.response.Value.DeviceID}
-        EncapsulationVersion: ${response.response.Value.EncapsulationVersion}
-        IPAddress: ${response.response.Value.IPAddress}
-        Length: ${response.response.Value.Length}
-        ProductCode: ${response.response.Value.ProductCode}
-        ProductName: ${response.response.Value.ProductName}
-        ProductNameLength: ${response.response.Value.ProductNameLength}
-        Revision: ${response.response.Value.Revision}
-        SerialNumber: ${response.response.Value.SerialNumber}
-        State: ${response.response.Value.State}
-        Status: ${response.response.Value.Status}
-        Vendor: ${response.response.Value.Vendor}
-        VendorID: ${response.response.Value.VendorID}`;
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    const handleSlotChange = (event: any) => {
+        setSlot(parseInt(event.target.value));
+    };
+
+    return (
+        <>
+            <AccordionItemWrapper title="Get module properties">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     Retrieve the properties of the module located in the
                     specified slot. The function returns a Response class
@@ -89,7 +66,8 @@ export function GetModuleProperties({ token }: IGetModuleProperties) {
                             type="number"
                             name="slot"
                             placeholder="slot"
-                            defaultValue={formState.slot}
+                            value={slot}
+                            onInput={handleSlotChange}
                         />
                     </div>
                     <Button
@@ -101,16 +79,7 @@ export function GetModuleProperties({ token }: IGetModuleProperties) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper
-                title="Get module properties"
-                children={<Form />}
-            />
+            </AccordionItemWrapper>
         </>
     );
 }

@@ -31,13 +31,9 @@ interface CustomForm extends HTMLFormElement {
 }
 
 export function Write({ token }: IWrite) {
-    const [formState, setFormState] = useState({
-        token: "",
-        tag: "",
-        value: 1,
-        datatype: 195,
-    });
-    const [selectedValue, setSelectedValue] = useState("0xc3");
+    const [tag, setTag] = useState("");
+    const [value, setValue] = useState(1);
+    const [datatype, setDatatype] = useState("0xc3");
     const [resText, setResText] = useState("");
 
     const handleWrite = async (event: FormEvent<CustomForm>) => {
@@ -52,29 +48,27 @@ export function Write({ token }: IWrite) {
             datatype: parseInt(target.datatype.value),
         };
 
-        setFormState(msg);
-
         const response = await write(msg);
-
-        let result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.error_message: ${response.error_message}
-        response.status: ${response.status}
-        PYLOGIX RESPONSE`;
-        for (let i = 0; i < response.response.length; i++) {
-            result += `---
-            TAG: ${i}
-            response.response[${i}}].Status: ${response.response[i].Status}
-            response.response[${i}}].TagName: ${response.response[i].TagName}
-            response.response[${i}}].Value: ${response.response[i].Value}`;
-        }
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    const handleTagChange = (event: any) => {
+        setTag(event.target.value);
+    };
+
+    const handleValueChange = (event: any) => {
+        setValue(Number(event.target.value));
+    };
+
+    const handleDatatypeChange = (event: any) => {
+        setDatatype(event);
+    };
+
+    return (
+        <>
+            <AccordionItemWrapper title="Write">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     This function offers two writing options: generating a
                     single tag or an array. The output is a Response class
@@ -97,7 +91,8 @@ export function Write({ token }: IWrite) {
                             type="text"
                             name="tag"
                             placeholder="tag"
-                            defaultValue={formState.tag}
+                            value={tag}
+                            onInput={handleTagChange}
                         />
                     </div>
                     <div className="grid w-full max-w-sm items-center gap-1.5">
@@ -111,7 +106,8 @@ export function Write({ token }: IWrite) {
                             type="number"
                             name="value"
                             placeholder="value"
-                            defaultValue={formState.value}
+                            value={value}
+                            onInput={handleValueChange}
                         />
                     </div>
                     <div className="grid w-full max-w-sm items-center gap-1.5 pb-4">
@@ -123,10 +119,8 @@ export function Write({ token }: IWrite) {
                         </Label>
                         <Select
                             name="datatype"
-                            value={selectedValue}
-                            onValueChange={(event: any) => {
-                                setSelectedValue(event);
-                            }}
+                            value={datatype}
+                            onValueChange={handleDatatypeChange}
                         >
                             <SelectTrigger className="text-foreground w-full max-w-sm">
                                 <SelectValue placeholder="Select a datatype" />
@@ -149,13 +143,7 @@ export function Write({ token }: IWrite) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper title="Write" children={<Form />} />
+            </AccordionItemWrapper>
         </>
     );
 }

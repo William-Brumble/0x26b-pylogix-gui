@@ -21,38 +21,14 @@ export function GetDeviceProperties({ token }: IGetDeviceProperties) {
         };
 
         const response = await getDeviceProperties(msg);
-
-        const result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.error_message: ${response.error_message}
-        response.status: ${response.status}
-        PYLOGIX RESPONSE
-        response.response.error: ${response.response.error}
-        response.response.error_message: ${response.response.error_message}
-        response.response.status: ${response.response.status}
-        response.response.Status: ${response.response.Status}
-        response.response.TagName: ${response.response.TagName}
-        DEVICE
-        response.response.Value.DeviceID: ${response.response.Value.DeviceID}
-        response.response.Value.EcapsualtionVesrion: ${response.response.Value.EncapsulationVersion}
-        response.response.Value.IPAddress: ${response.response.Value.IPAddress}
-        response.response.Value.Length: ${response.response.Value.Length}
-        response.response.Value.ProductCode: ${response.response.Value.ProductCode}
-        response.response.Value.ProductName: ${response.response.Value.ProductName}
-        response.response.Value.ProductNameLength: ${response.response.Value.ProductNameLength}
-        response.response.Value.Revision: ${response.response.Value.Revision}
-        response.response.Value.SerialNumber: ${response.response.Value.SerialNumber}
-        response.response.Value.State: ${response.response.Value.State}
-        response.response.Value.Status: ${response.response.Value.Status}
-        response.response.Value.Vendor: ${response.response.Value.Vendor}
-        response.response.Value.VendorID: ${response.response.Value.VendorID}`;
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    return (
+        <>
+            <AccordionItemWrapper title="Get device properties">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     Retrieve the device properties of a device located at the
                     specified IP address. The function returns a Response class
@@ -71,16 +47,7 @@ export function GetDeviceProperties({ token }: IGetDeviceProperties) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper
-                title="Get device properties"
-                children={<Form />}
-            />
+            </AccordionItemWrapper>
         </>
     );
 }

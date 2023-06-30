@@ -22,52 +22,30 @@ interface CustomForm extends HTMLFormElement {
 }
 
 export function GetTagList({ token }: IGetTagList) {
-    const [formState, setFormState] = useState({
-        token: "",
-        all_tags: true,
-    });
+    const [allTags, setAllTags] = useState(true);
     const [resText, setResText] = useState("");
 
     const handleGetTagList = async (event: FormEvent<CustomForm>) => {
         event.preventDefault();
 
-        const target = event.currentTarget.elements;
-
         const msg: IGetTagListReq = {
             token: token,
-            all_tags: target.all_tags.checked,
+            all_tags: allTags,
         };
 
-        setFormState(msg);
-
         const response = await getTagList(msg);
-
-        let result = `BACKEND RESPONSE
-        error: ${response.error}
-        error_message: ${response.error_message}
-        status: ${response.status}
-        PYLOGIX RESPONSE
-        Status: ${response.Status}
-        TagName: ${response.TagName}`;
-        for (let i = 0; i < response.Value.length; i++) {
-            result += `---
-            TAG: ${i}
-            Array: ${response.Value[i].Array}
-            DataType: ${response.Value[i].DataType}
-            DataTypeValue: ${response.Value[i].DataTypeValue}
-            InstanceID: ${response.Value[i].InstanceID}
-            Size: ${response.Value[i].Size}
-            Struct: ${response.Value[i].Struct}
-            SymbolType: ${response.Value[i].SymbolType}
-            TagName: ${response.Value[i].TagName}`;
-        }
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    const handleAllTagsChange = (_: any) => {
+        setAllTags(!allTags);
+    };
+
+    return (
+        <>
+            <AccordionItemWrapper title="Get tag list">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     Retrieve the tag list from the PLC, with the optional
                     parameter allTags. If allTags is set to False, only
@@ -80,7 +58,11 @@ export function GetTagList({ token }: IGetTagList) {
                     onSubmit={handleGetTagList}
                 >
                     <div className="flex w-full items-center space-x-2 text-foreground pb-4">
-                        <Checkbox name="allTags" checked={formState.all_tags} />
+                        <Checkbox
+                            name="allTags"
+                            onCheckedChange={handleAllTagsChange}
+                            checked={allTags}
+                        />
                         <Label
                             htmlFor="allTags"
                             className="text-foreground text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -97,13 +79,7 @@ export function GetTagList({ token }: IGetTagList) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper title="Get tag list" children={<Form />} />
+            </AccordionItemWrapper>
         </>
     );
 }

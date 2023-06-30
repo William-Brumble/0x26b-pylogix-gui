@@ -21,20 +21,14 @@ export function GetConnectionSize({ token }: IGetConnectionSize) {
         };
 
         const response = await getConnectionSize(msg);
-
-        const result = `BACKEND RESPONSE
-        response.error: ${response.error}
-        response.status: ${response.status}
-        response.error_message: ${response.error_message}
-        PYLOGIX RESPONSE
-        response.response.connection_size: ${response.response.connection_size}`;
-
-        setResText(result);
+        const response_stringify = JSON.stringify(response, null, "\t");
+        console.log(response_stringify);
+        setResText(response_stringify);
     };
 
-    const Form = () => {
-        return (
-            <>
+    return (
+        <>
+            <AccordionItemWrapper title="Get connection size">
                 <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
                     The "getConnectionSize" function retrieves and returns the
                     current connection size parameter value. It provides access
@@ -56,16 +50,7 @@ export function GetConnectionSize({ token }: IGetConnectionSize) {
                     </Button>
                 </form>
                 <TextAreaWrapper resText={resText} />
-            </>
-        );
-    };
-
-    return (
-        <>
-            <AccordionItemWrapper
-                title="Get connection size"
-                children={<Form />}
-            />
+            </AccordionItemWrapper>
         </>
     );
 }

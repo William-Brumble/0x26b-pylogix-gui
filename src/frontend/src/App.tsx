@@ -1,23 +1,51 @@
-import { useEffect, useState } from "react";
+import { ReactNode } from "react";
+import { Outlet, createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import "./App.css";
+import { Error } from "@/pages/Error.tsx";
+import { Settings } from "@/pages/Settings.tsx";
+import { Home } from "@/pages/Home.tsx";
+import { ConfigurationProvider } from "@/store/settings.provider.tsx";
 
-import { ManualOperation } from "@/pages/ManualOperation.tsx";
+type ProviderProps = {
+    children: ReactNode;
+};
 
-// TODO: Create interfaces for the handler events.
+function Providers({ children }: ProviderProps) {
+    return <ConfigurationProvider>{children}</ConfigurationProvider>;
+}
+
+function Root() {
+    return (
+        <Providers>
+            <div className="bg-background p-5">
+                <Outlet />
+            </div>
+        </Providers>
+    );
+}
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <Root />,
+        errorElement: <Error />,
+        children: [
+            {
+                index: true,
+                element: <Home />,
+                errorElement: <Error />,
+            },
+            {
+                path: "/settings",
+                element: <Settings />,
+                errorElement: <Error />,
+            },
+        ],
+    },
+]);
 
 function App() {
-    const [token, setToken] = useState("");
-
-    useEffect(() => {
-        setToken(window?.pywebview?.token);
-    }, []);
-
-    return (
-        <div className="bg-background p-5">
-            <ManualOperation token={token} />
-        </div>
-    );
+    return <RouterProvider router={router} />;
 }
 
 export default App;

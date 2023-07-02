@@ -63,6 +63,7 @@ export function GetModuleProperties({ token }: IGetModuleProperties) {
                             SLOT:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="number"
                             name="slot"
                             placeholder="slot"

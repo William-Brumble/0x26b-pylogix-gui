@@ -67,6 +67,7 @@ export function SetConnectionSize({ token }: ISetConnectionSize) {
                             CONNECTION SIZE:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="number"
                             name="connection_size"
                             placeholder="connection size"

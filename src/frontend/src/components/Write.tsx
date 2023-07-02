@@ -88,6 +88,7 @@ export function Write({ token }: IWrite) {
                             TAG:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="text"
                             name="tag"
                             placeholder="tag"
@@ -103,6 +104,7 @@ export function Write({ token }: IWrite) {
                             VALUE:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="number"
                             name="value"
                             placeholder="value"

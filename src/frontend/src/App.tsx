@@ -1,30 +1,46 @@
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
 import { Outlet, createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import { Home } from "@/pages/Home.tsx";
+import { Watch } from "@/pages/Watch.tsx";
 import { Error } from "@/pages/Error.tsx";
 import { Settings } from "@/pages/Settings.tsx";
 import { ManualOperation } from "@/pages/ManualOperation.tsx";
 import { NavigationMenuDesktop } from "@/components/NavigationMenuDesktop.tsx";
+import { cn } from "@/components/lib/utils.ts";
 
 import { ConfigurationProvider } from "@/store/settings.provider.tsx";
+import { Source } from "@/pages/Source.tsx";
+import { Tags } from "@/pages/Tags.tsx";
+import { Collections } from "@/pages/Collections.tsx";
+import { SettingsContext } from "@/store/settings.context.tsx";
 
-type ProviderProps = {
+type DarkModeProps = {
     children: ReactNode;
 };
 
-function Providers({ children }: ProviderProps) {
-    return <ConfigurationProvider>{children}</ConfigurationProvider>;
+function DarkMode({ children }: DarkModeProps) {
+    const settings = useContext(SettingsContext);
+
+    return (
+        <div
+            className={cn(
+                settings.darkMode ? "dark" : null,
+                "bg-background p-5 w-full h-full"
+            )}
+        >
+            {children}
+        </div>
+    );
 }
 
 function Root() {
     return (
-        <Providers>
-            <div className="bg-background p-5">
+        <ConfigurationProvider>
+            <DarkMode>
                 <NavigationMenuDesktop />
                 <Outlet />
-            </div>
-        </Providers>
+            </DarkMode>
+        </ConfigurationProvider>
     );
 }
 
@@ -36,12 +52,27 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <Home />,
+                element: <Watch />,
                 errorElement: <Error />,
             },
             {
                 path: "/settings",
                 element: <Settings />,
+                errorElement: <Error />,
+            },
+            {
+                path: "/tags",
+                element: <Tags />,
+                errorElement: <Error />,
+            },
+            {
+                path: "/collections",
+                element: <Collections />,
+                errorElement: <Error />,
+            },
+            {
+                path: "/source",
+                element: <Source />,
                 errorElement: <Error />,
             },
             {

@@ -23,11 +23,47 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
         <div className="flex gap-6 md:gap-10">
             <Link to="/" className="hidden items-center space-x-2 md:flex">
                 {/*<Icons.logo />*/}
-                <span className="hidden font-bold sm:inline-block">
+                <span className="hidden text-foreground font-bold sm:inline-block">
                     w/LOGIX
                 </span>
             </Link>
             <nav className="hidden gap-6 md:flex">
+                <Link
+                    to="/"
+                    className={cn(
+                        "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
+                        "text-foreground"
+                    )}
+                >
+                    Watch
+                </Link>
+                <Link
+                    to="/tags"
+                    className={cn(
+                        "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
+                        "text-foreground"
+                    )}
+                >
+                    Tags
+                </Link>
+                <Link
+                    to="/collections"
+                    className={cn(
+                        "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
+                        "text-foreground"
+                    )}
+                >
+                    Collections
+                </Link>
+                <Link
+                    to="/source"
+                    className={cn(
+                        "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
+                        "text-foreground"
+                    )}
+                >
+                    Source
+                </Link>
                 <Link
                     to="/manual-operation"
                     className={cn(
@@ -35,7 +71,7 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
                         "text-foreground"
                     )}
                 >
-                    Manual Operation
+                    Manual
                 </Link>
                 <Link
                     to="/settings"
@@ -52,7 +88,7 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
             >
                 {/*{showMobileMenu ? <Icons.close /> : <Icons.logo />}*/}
-                <span className="font-bold">Menu</span>
+                <span className="font-bold text-foreground">Menu</span>
             </button>
             {showMobileMenu && (
                 <NavigationMenuMobile>{children}</NavigationMenuMobile>

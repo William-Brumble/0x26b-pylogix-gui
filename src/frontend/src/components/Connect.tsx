@@ -91,6 +91,7 @@ export function Connect({ token }: IConnect) {
                             IP:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="text"
                             name="ip_address"
                             placeholder="ip address"
@@ -104,6 +105,7 @@ export function Connect({ token }: IConnect) {
                             SLOT:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="number"
                             name="slot"
                             placeholder="slot"
@@ -117,6 +119,7 @@ export function Connect({ token }: IConnect) {
                             TIMEOUT:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="number"
                             name="timeout"
                             placeholder="timeout"

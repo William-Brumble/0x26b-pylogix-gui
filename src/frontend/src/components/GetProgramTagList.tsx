@@ -64,6 +64,7 @@ export function GetProgramTagList({ token }: IGetProgramTagList) {
                             PROGRAM NAME:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="text"
                             name="program_name"
                             placeholder="program name"

@@ -89,6 +89,7 @@ export function Read({ token }: IRead) {
                             TAG:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="text"
                             name="tag"
                             placeholder="tag"
@@ -104,6 +105,7 @@ export function Read({ token }: IRead) {
                             COUNT:
                         </Label>
                         <Input
+                            className="text-foreground"
                             type="number"
                             name="count"
                             placeholder="count"

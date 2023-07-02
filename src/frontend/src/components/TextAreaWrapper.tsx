@@ -11,6 +11,7 @@ export function TextAreaWrapper({ resText }: IResponseTextArea) {
             <div className="grid w-full gap-1.5">
                 <Label htmlFor="message">Response:</Label>
                 <Textarea
+                    className="text-foreground"
                     placeholder="Response message will show up here."
                     id="message"
                     readOnly

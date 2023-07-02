@@ -7,12 +7,20 @@ type Props = {
 
 export const ConfigurationProvider = ({ children }: Props) => {
     const [refreshRate, setRefreshRateState] = useState(1);
+    const [darkMode, setDarkModeState] = useState(false);
+
     const setRefreshRate = (rate: number) => {
         setRefreshRateState(rate);
     };
 
+    const setDarkMode = (mode: boolean) => {
+        setDarkModeState(mode);
+    };
+
     return (
-        <SettingsContext.Provider value={{ refreshRate, setRefreshRate }}>
+        <SettingsContext.Provider
+            value={{ darkMode, setDarkMode, refreshRate, setRefreshRate }}
+        >
             {children}
         </SettingsContext.Provider>
     );

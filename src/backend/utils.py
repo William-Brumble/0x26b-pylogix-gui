@@ -25,7 +25,9 @@ def common_exception_handler(f):
 def common_connection_protection(f):
     """ Returns error message if not connected to a PLC """
     def modified_f(self, *args, **kwargs):
-        if self._plc is not None:
+        logger.debug("Checking to see if there is a connection to a PLC")
+        if self._plc.IPAddress != "":
+            logger.debug("All is well!")
             return f(self, *args, **kwargs)
         else:
             logger.warning(f"412 Precondition Failed: You must be connected to a PLC before sending a request")

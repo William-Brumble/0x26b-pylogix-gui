@@ -30,7 +30,11 @@ class App:
 
     def __init__(self, simulate: bool = False):
         self._simulate = simulate
-        self._plc: MockPylogixPLC | RealPylogixPLC = None
+
+        if self._simulate:
+            self._plc = MockPylogixPLC();
+        else:
+            self._plc = RealPylogixPLC();
 
     def initialize(self):
         return True
@@ -224,11 +228,14 @@ class App:
 
         return GetProgramsListResDTO(error=False, status="200 OK", response=response)
 
-    @common_connection_protection
     def discover(self, req: DiscoverReqDTO) -> DiscoverResDTO:
         logger.debug(f"Discover called with: {req}")
 
         response = self._plc.Discover()
+
+        # filter to only include PLC devices
+        response.Value = [x for x in response.Value if x.DeviceID == 14]
+
         logger.debug(f"Got response: {response}")
 
         return DiscoverResDTO(error=False, status="200 OK", response=response)

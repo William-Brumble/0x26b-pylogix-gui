@@ -34,9 +34,9 @@ class _DataType(Enum):
 
 class PLC:
     def __init__(self,
-                 ip_address: str,
+                 ip_address: str = "",
                  slot: int = 0,
-                 timeout: int = 5,
+                 timeout: int = 5.0,
                  Micro800: bool = False) -> None:
         self.IPAddress = ip_address
         self.ProcessorSlot = slot

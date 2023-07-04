@@ -1,4 +1,4 @@
-export interface IPylogixDevice {
+export type IPylogixDevice = {
     DeviceID: number;
     EncapsulationVersion: number;
     IPAddress: string;
@@ -12,7 +12,7 @@ export interface IPylogixDevice {
     Status: number;
     Vendor: string;
     VendorID: number;
-}
+};
 
 export interface IPylogixTag {
     Array: number;

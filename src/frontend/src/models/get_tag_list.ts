@@ -9,7 +9,9 @@ export interface IGetTagListRes {
     error: boolean;
     error_message: string;
     status: string;
-    Status: string;
-    TagName: undefined;
-    Value: IPylogixTag[];
+    response: {
+        Status: string;
+        TagName: undefined;
+        Value: IPylogixTag[];
+    };
 }

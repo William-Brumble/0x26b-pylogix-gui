@@ -13,9 +13,19 @@ import { Tags } from "@/pages/Tags.tsx";
 import { loader as loaderSource } from "@/pages/Source.tsx";
 import { loader as loaderManual } from "@/pages/ManualOperation.tsx";
 import { loader as loaderTags } from "@/pages/Tags.tsx";
+import { useEffect, useState } from "react";
 
 function Root() {
-    const token = window?.pywebview?.token ? window.pywebview.token : "test";
+    const [token, setToken] = useState("test");
+
+    useEffect(() => {
+        /*
+            On linux this isn't an issue, but on winblows
+            you need to reference the global pywebview object after
+            component has mounted fully.
+         */
+        setToken(window.pywebview.token);
+    }, []);
 
     return (
         <ConfigurationProvider>

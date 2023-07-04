@@ -43,7 +43,7 @@ if __name__ == '__main__':
     server = Factory.create_server(application=application)
 
     logger.debug("Using the factory to create the window")
-    window = Factory.create_window(server=server.flask_app, server_port=args.port, window_name="pylogix")
+    window = Factory.create_window(server=server.flask_app, server_port=args.port, window_name="0x26b-pylogix-gui")
 
     webview.start(debug=True)
 

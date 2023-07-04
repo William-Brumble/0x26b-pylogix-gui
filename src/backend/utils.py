@@ -27,7 +27,7 @@ def common_connection_protection(f):
     def modified_f(self, *args, **kwargs):
         logger.debug("Checking to see if there is a connection to a PLC")
         if self._plc.IPAddress != "":
-            logger.debug("All is well!")
+            logger.debug("There is a connection to a PLC all is well!")
             return f(self, *args, **kwargs)
         else:
             logger.warning(f"412 Precondition Failed: You must be connected to a PLC before sending a request")

@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 import { Separator } from "@/components/ui/separator.tsx";
 import { Close } from "@/components/Close.tsx";
 import { Connect } from "@/components/Connect.tsx";
@@ -15,13 +13,14 @@ import { Read } from "@/components/Read.tsx";
 import { SetConnectionSize } from "@/components/SetConnectionSize.tsx";
 import { SetPlcTime } from "@/components/SetPlcTime.tsx";
 import { Write } from "@/components/Write.tsx";
+import { useLoaderData, redirect } from "react-router-dom";
 
 export function ManualOperation() {
-    const [token, setToken] = useState("");
+    const { error, error_message, token }: any = useLoaderData();
 
-    useEffect(() => {
-        setToken(window?.pywebview?.token);
-    }, []);
+    if (error) {
+        alert(error_message);
+    }
 
     return (
         <div className="bg-background p-5">
@@ -79,3 +78,19 @@ export function ManualOperation() {
         </div>
     );
 }
+
+export const loader = async (payload: any) => {
+    const params = new URL(payload.request.url).searchParams;
+    const token = params.get("token");
+
+    if (token) {
+        return {
+            error: false,
+            error_message: "no error message",
+            token: token,
+            data: undefined,
+        };
+    } else {
+        return redirect("/error");
+    }
+};

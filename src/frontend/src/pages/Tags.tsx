@@ -2,14 +2,12 @@ import { redirect, useLoaderData } from "react-router-dom";
 
 import { IGetTagListReq, IGetTagListRes } from "@/models/get_tag_list.ts";
 import { getTagList } from "@/api";
+import { TagDataTable } from "@/components/TagsDataTable.tsx";
+import { columns } from "@/components/TagsColumns.tsx";
 
 export function Tags() {
     const { data }: any = useLoaderData();
     const encoded = data as IGetTagListRes;
-
-    const listItems = encoded.response.Value.map((tag) => (
-        <li className="font-normal text-foreground">{JSON.stringify(tag)}</li>
-    ));
 
     return (
         <div className="bg-background p-5">
@@ -20,7 +18,9 @@ export function Tags() {
                 These are all the tags found in the source PLC; you can select
                 tags for monitoring here.
             </p>
-            <ul>{listItems}</ul>
+            <div className="w-full h-full min-h-full py-10">
+                <TagDataTable columns={columns} data={encoded.response.Value} />
+            </div>
         </div>
     );
 }

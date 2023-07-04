@@ -13,15 +13,19 @@ export type NavItem = {
 export type MainNavItem = NavItem;
 
 interface MainNavProps {
+    token: string;
     children?: React.ReactNode;
 }
 
-export function NavigationMenuDesktop({ children }: MainNavProps) {
+export function NavigationMenuDesktop({ children, token }: MainNavProps) {
     const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
 
     return (
         <div className="flex gap-6 md:gap-10">
-            <Link to="/" className="hidden items-center space-x-2 md:flex">
+            <Link
+                to={`/?token=${token}`}
+                className="hidden items-center space-x-2 md:flex"
+            >
                 {/*<Icons.logo />*/}
                 <span className="hidden text-foreground font-bold sm:inline-block">
                     w/LOGIX
@@ -29,7 +33,7 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
             </Link>
             <nav className="hidden gap-6 md:flex">
                 <Link
-                    to="/"
+                    to={`/?token=${token}`}
                     className={cn(
                         "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
                         "text-foreground"
@@ -38,7 +42,7 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
                     Watch
                 </Link>
                 <Link
-                    to="/tags"
+                    to={`/tags?token=${token}`}
                     className={cn(
                         "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
                         "text-foreground"
@@ -46,8 +50,9 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
                 >
                     Tags
                 </Link>
+                {/*
                 <Link
-                    to="/collections"
+                    to={`/collections?token=${token}`}
                     className={cn(
                         "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
                         "text-foreground"
@@ -55,8 +60,9 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
                 >
                     Collections
                 </Link>
+                */}
                 <Link
-                    to="/source"
+                    to={`/source?token=${token}`}
                     className={cn(
                         "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
                         "text-foreground"
@@ -65,7 +71,7 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
                     Source
                 </Link>
                 <Link
-                    to="/manual-operation"
+                    to={`/manual-operation?token=${token}`}
                     className={cn(
                         "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
                         "text-foreground"
@@ -74,7 +80,7 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
                     Manual
                 </Link>
                 <Link
-                    to="/settings"
+                    to={`/settings?token=${token}`}
                     className={cn(
                         "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
                         "text-foreground"
@@ -91,7 +97,9 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
                 <span className="font-bold text-foreground">Menu</span>
             </button>
             {showMobileMenu && (
-                <NavigationMenuMobile>{children}</NavigationMenuMobile>
+                <NavigationMenuMobile token={token}>
+                    {children}
+                </NavigationMenuMobile>
             )}
         </div>
     );

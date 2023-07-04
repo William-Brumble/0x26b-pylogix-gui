@@ -5,10 +5,11 @@ import { cn } from "@/components/lib/utils";
 import { useLockBody } from "@/hooks/use-lock-body.ts";
 
 interface MobileNavProps {
+    token: string;
     children?: React.ReactNode;
 }
 
-export function NavigationMenuMobile({ children }: MobileNavProps) {
+export function NavigationMenuMobile({ children, token }: MobileNavProps) {
     useLockBody();
 
     return (
@@ -18,13 +19,17 @@ export function NavigationMenuMobile({ children }: MobileNavProps) {
             )}
         >
             <div className="relative z-20 grid gap-6 rounded-md bg-popover p-4 text-popover-foreground shadow-md">
-                <Link to="/" className="flex items-center space-x-2">
+                <Link
+                    to={`/?token=${token}`}
+                    className="flex items-center space-x-2"
+                >
                     {/*<Icons.logo />*/}
                     <span className="text-foreground font-bold">w/LOGIX</span>
                 </Link>
                 <nav className="grid grid-flow-row auto-rows-max text-sm">
                     <Link
-                        to="/"
+                        to={`/?token=${token}`}
+                        state={{ token: token }}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
@@ -32,23 +37,28 @@ export function NavigationMenuMobile({ children }: MobileNavProps) {
                         Watch
                     </Link>
                     <Link
-                        to="/tags"
+                        to={`/tags?token=${token}`}
+                        state={{ token: token }}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
                     >
                         Tags
                     </Link>
+                    {/*
                     <Link
-                        to="/collections"
+                        to={`/collections?token=${token}`}
+                        state={{ token: token }}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
                     >
                         Collections
                     </Link>
+                    */}
                     <Link
-                        to="/source"
+                        to={`/source?token=${token}`}
+                        state={{ token: token }}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
@@ -56,7 +66,8 @@ export function NavigationMenuMobile({ children }: MobileNavProps) {
                         Source
                     </Link>
                     <Link
-                        to="/manual-operation"
+                        to={`/manual-operation?token=${token}`}
+                        state={{ token: token }}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
@@ -64,7 +75,8 @@ export function NavigationMenuMobile({ children }: MobileNavProps) {
                         Manual
                     </Link>
                     <Link
-                        to="/settings"
+                        to={`/settings?token=${token}`}
+                        state={{ token: token }}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}

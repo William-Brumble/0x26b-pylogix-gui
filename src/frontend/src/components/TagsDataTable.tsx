@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
     ColumnDef,
     flexRender,
@@ -27,6 +27,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/components/lib/utils.ts";
+import { SettingsContext } from "@/store/settings.context.tsx";
+import { TagsContext } from "@/store/tags.context.tsx";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -37,12 +40,25 @@ export function TagDataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
+    const tags = useContext(TagsContext);
+    const settings = useContext(SettingsContext);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState({});
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-        {}
-    );
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+        InstanceID: false,
+        SymbolType: false,
+        DataTypeValue: false,
+        Array: false,
+        Struct: false,
+        Size: false,
+        AccessRight: false,
+        Internal: false,
+        Meta: false,
+        Scope0: false,
+        Scope1: false,
+        Bytes: false,
+    });
 
     const table = useReactTable({
         data,
@@ -85,8 +101,12 @@ export function TagDataTable<TData, TValue>({
                     }
                     className="max-w-sm text-foreground"
                 />
+
                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger
+                        className={cn(settings.darkMode ? "dark" : null)}
+                        asChild
+                    >
                         <Button
                             variant="outline"
                             className="ml-auto text-foreground"
@@ -94,7 +114,10 @@ export function TagDataTable<TData, TValue>({
                             Columns
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent
+                        className={cn(settings.darkMode ? "dark" : null)}
+                        align="end"
+                    >
                         {table
                             .getAllColumns()
                             .filter((column) => column.getCanHide())
@@ -138,23 +161,29 @@ export function TagDataTable<TData, TValue>({
                     </TableHeader>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={
-                                        row.getIsSelected() && "selected"
-                                    }
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
-                                </TableRow>
-                            ))
+                            table.getRowModel().rows.map((row) => {
+                                const tagName = row.getValue(
+                                    "TagName"
+                                ) as string;
+
+                                const hasTagName = tags.tags?.has(tagName);
+
+                                return (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={hasTagName && "selected"}
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                );
+                            })
                         ) : (
                             <TableRow>
                                 <TableCell

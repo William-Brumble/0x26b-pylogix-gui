@@ -4,6 +4,8 @@ import { ArrowUpDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { IPylogixTag } from "@/models/pylogix.ts";
+import { useContext } from "react";
+import { TagsContext } from "@/store/tags.context.tsx";
 
 type ISortableHeaderProps = {
     column: Column<IPylogixTag>;
@@ -33,22 +35,31 @@ const FormattedCell = ({ row, name }: IFormattedCellProps) => {
 export const columns: ColumnDef<IPylogixTag>[] = [
     {
         id: "select",
-        header: ({ table }) => (
-            <Checkbox
-                checked={table.getIsAllPageRowsSelected()}
-                onCheckedChange={(value) =>
-                    table.toggleAllPageRowsSelected(!!value)
+        cell: ({ row }) => {
+            const tags = useContext(TagsContext);
+
+            const tag = row.original;
+            const tagName = row.original.TagName;
+            const hasTagName = tags.tags?.has(tagName);
+
+            const handleChecked = (value: any) => {
+                if (value) {
+                    tags.add?.(tag);
+                } else {
+                    tags.remove?.(tag);
                 }
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
+
+                row.toggleSelected(!!value);
+            };
+
+            return (
+                <Checkbox
+                    checked={hasTagName}
+                    onCheckedChange={handleChecked}
+                    aria-label="Select row"
+                />
+            );
+        },
         enableSorting: false,
         enableHiding: false,
     },

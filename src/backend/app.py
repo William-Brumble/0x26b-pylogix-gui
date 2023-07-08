@@ -72,7 +72,11 @@ class App:
 
         logger.debug(f"Closing the connection to the PLC")
         self._plc.Close()
-        self._plc = None
+
+        if self._simulate:
+            self._plc = MockPylogixPLC();
+        else:
+            self._plc = RealPylogixPLC();
 
         return CloseResDTO(status="200 OK")
 

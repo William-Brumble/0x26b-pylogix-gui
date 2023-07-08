@@ -1,16 +1,9 @@
 import { Column, Row, ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    //DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { IPylogixDevice } from "@/models/pylogix.ts";
+import { SourceDialog } from "@/components/SourceDialog.tsx";
 
 type ISortableHeaderProps = {
     column: Column<IPylogixDevice>;
@@ -35,6 +28,7 @@ type IFormattedCellProps = {
 };
 const FormattedCell = ({ row, name }: IFormattedCellProps) => {
     const value: string | number | undefined = row.getValue(name);
+
     return <div className="text-foreground">{value}</div>;
 };
 
@@ -42,32 +36,7 @@ export const columns: ColumnDef<IPylogixDevice>[] = [
     {
         id: "actions",
         cell: ({ row }) => {
-            const device = row.original;
-
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            className="bg-background text-foreground h-8 w-8 p-0"
-                        >
-                            <span className="sr-only text-foreground">
-                                Open menu
-                            </span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            className="bg-background text-foreground"
-                            onClick={() => console.log(`device: ${device}`)}
-                        >
-                            Set as active source
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
+            return <SourceDialog row={row} />;
         },
     },
     {

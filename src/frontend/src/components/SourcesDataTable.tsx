@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
     ColumnDef,
     flexRender,
@@ -25,8 +25,11 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/components/lib/utils.ts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SourcesContext } from "@/store/sources.context.tsx";
+import { SettingsContext } from "@/store/settings.context.tsx";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -37,12 +40,23 @@ export function SourceDataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
+    const settings = useContext(SettingsContext);
+    const sources = useContext(SourcesContext);
+
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState({});
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-        {}
-    );
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+        Length: false,
+        EncapsulationVersion: false,
+        VendorID: false,
+        DeviceID: false,
+        DeviceType: false,
+        ProductCode: false,
+        Status: false,
+        ProductNameLength: false,
+        State: false,
+    });
 
     const table = useReactTable({
         data,
@@ -86,7 +100,10 @@ export function SourceDataTable<TData, TValue>({
                     className="max-w-sm text-foreground"
                 />
                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger
+                        className={cn(settings.darkMode ? "dark" : null)}
+                        asChild
+                    >
                         <Button
                             variant="outline"
                             className="ml-auto text-foreground"
@@ -94,7 +111,10 @@ export function SourceDataTable<TData, TValue>({
                             Columns
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent
+                        className={cn(settings.darkMode ? "dark" : null)}
+                        align="end"
+                    >
                         {table
                             .getAllColumns()
                             .filter((column) => column.getCanHide())
@@ -140,6 +160,10 @@ export function SourceDataTable<TData, TValue>({
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
+                                    className={cn(
+                                        row.getValue("IPAddress") ===
+                                            sources.selectedSource && "bg-muted"
+                                    )}
                                     key={row.id}
                                     data-state={
                                         row.getIsSelected() && "selected"
@@ -168,6 +192,7 @@ export function SourceDataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
+
             <div className="flex items-center justify-end space-x-2 py-4">
                 <Button
                     className="text-foreground"
@@ -178,6 +203,7 @@ export function SourceDataTable<TData, TValue>({
                 >
                     Previous
                 </Button>
+
                 <Button
                     className="text-foreground"
                     variant="outline"

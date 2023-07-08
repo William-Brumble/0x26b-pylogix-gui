@@ -13,10 +13,14 @@ import { Tags } from "@/pages/Tags.tsx";
 import { loader as loaderSource } from "@/pages/Source.tsx";
 import { loader as loaderManual } from "@/pages/ManualOperation.tsx";
 import { loader as loaderTags } from "@/pages/Tags.tsx";
-import { useEffect, useState } from "react";
+import { loader as loaderError } from "@/pages/Error.tsx";
+import { useContext, useEffect } from "react";
+import { SettingsContext } from "@/store/settings.context.tsx";
+import { SourcesProvider } from "@/store/sources.provider.tsx";
+import { TagsProvider } from "@/store/tags.provider.tsx";
 
 function Root() {
-    const [token, setToken] = useState("test");
+    const settings = useContext(SettingsContext);
 
     useEffect(() => {
         /*
@@ -24,15 +28,22 @@ function Root() {
             you need to reference the global pywebview object after
             component has mounted fully.
          */
-        setToken(window.pywebview.token);
+        const token = window?.pywebview?.token;
+        if (token) {
+            settings.setToken?.(token);
+        }
     }, []);
 
     return (
         <ConfigurationProvider>
-            <DarkMode>
-                <NavigationMenuDesktop token={token} />
-                <Outlet />
-            </DarkMode>
+            <SourcesProvider>
+                <TagsProvider>
+                    <DarkMode>
+                        <NavigationMenuDesktop />
+                        <Outlet />
+                    </DarkMode>
+                </TagsProvider>
+            </SourcesProvider>
         </ConfigurationProvider>
     );
 }
@@ -76,6 +87,12 @@ const router = createBrowserRouter([
                 element: <ManualOperation />,
                 errorElement: <Error />,
                 loader: loaderManual,
+            },
+            {
+                path: "/error",
+                element: <Error />,
+                errorElement: <Error />,
+                loader: loaderError,
             },
         ],
     },

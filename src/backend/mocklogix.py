@@ -9,9 +9,9 @@ logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
 from models import (
-    PLCResponseDTO,
-    PLCTagDTO,
-    PLCDeviceDTO
+    Response,
+    Tag,
+    LGXDevice
 )
 
 class _DataType(Enum):
@@ -55,11 +55,11 @@ class PLC:
     def Close(self) -> None:
         return
 
-    def Read(self, tag, count = 1, datatype = None) -> PLCResponseDTO | list[PLCResponseDTO]:
+    def Read(self, tag, count = 1, datatype = None) -> Response | list[Response]:
         if datatype:
             datatype = _DataType(datatype)
         if isinstance(tag, list):
-            container: list[PLCResponseDTO] = []
+            container: list[Response] = []
             for x in tag:
                 match datatype:
                     case _DataType.BOOL:
@@ -77,7 +77,7 @@ class PLC:
                     case _:
                         val = None
                 container.append(
-                    PLCResponseDTO(TagName=x, Value=val, Status="Success")
+                    Response(TagName=x, Value=val, Status="Success")
                 )
             return container
         else:
@@ -96,89 +96,89 @@ class PLC:
                     val = ''.join(choice(ascii_letters) for i in range(10))
                 case _:
                     val = None
-            return PLCResponseDTO(TagName=tag, Value=val, Status="Success")
+            return Response(TagName=tag, Value=val, Status="Success")
 
-    def Write(self, tag, value = None, datatype = None) -> PLCResponseDTO | list[PLCResponseDTO]:
+    def Write(self, tag, value = None, datatype = None) -> Response | list[Response]:
         if datatype:
             datatype = _DataType(datatype)
         if isinstance(tag, list):
-            container: list[PLCResponseDTO] = []
+            container: list[Response] = []
             for x in tag:
                 container.append(
-                    PLCResponseDTO(TagName=x[0], Value=x[1], Status="Success")
+                    Response(TagName=x[0], Value=x[1], Status="Success")
                 )
             return container
         else:
-            return PLCResponseDTO(TagName=tag, Value=value, Status="Success")
+            return Response(TagName=tag, Value=value, Status="Success")
 
-    def GetPLCTime(self, raw = False) -> PLCResponseDTO:
+    def GetPLCTime(self, raw = False) -> Response:
         if raw:
-            return PLCResponseDTO(TagName=None, Value=time.time(), Status="Success")
+            return Response(TagName=None, Value=time.time(), Status="Success")
         else:
-            return PLCResponseDTO(TagName=None, Value=datetime.now(), Status="Success")
+            return Response(TagName=None, Value=datetime.now(), Status="Success")
 
-    def SetPLCTime(self) -> PLCResponseDTO:
-        return PLCResponseDTO(TagName=None, Value=time.time(), Status="Success")
+    def SetPLCTime(self) -> Response:
+        return Response(TagName=None, Value=time.time(), Status="Success")
 
-    def GetTagList(self, allTags: bool = True) -> PLCResponseDTO:
+    def GetTagList(self, allTags: bool = True) -> Response:
         values: list[str] = []
         for i in range(randint(1, 1000)):
             values.append(
-                PLCTagDTO(TagName=f"tag-{i}")
+                Tag(TagName=f"tag-{i}")
             )
-        return PLCResponseDTO(
+        return Response(
             TagName=None, 
             Value=values,
             Status="Success"
         )
 
-    def GetProgramTagList(self, programName: str) -> PLCResponseDTO:
+    def GetProgramTagList(self, programName: str) -> Response:
         values: list[str] = []
         for i in range(randint(1, 1000)):
             values.append(
-                PLCTagDTO(TagName=f"Program:{programName}.tag-{i}")
+                Tag(TagName=f"Program:{programName}.tag-{i}")
             )
 
-        return PLCResponseDTO(
+        return Response(
             TagName=None, 
             Value=values,
             Status="Success"
         )
 
-    def GetProgramsList(self) -> PLCResponseDTO:
+    def GetProgramsList(self) -> Response:
         values: list[str] = []
         for i in range(randint(1, 1000)):
             values.append(f"Program:program-{i}")
-        return PLCResponseDTO(
+        return Response(
             TagName=None, 
             Value=values,
             Status="Success"
         )
 
-    def Discover(self) -> PLCResponseDTO:
-        values: list[PLCDeviceDTO] = []
+    def Discover(self) -> Response:
+        values: list[LGXDevice] = []
         for i in range(255):
             values.append(
-                PLCDeviceDTO(IPAddress=f"192.168.1.{i + 1}"),
+                LGXDevice(IPAddress=f"192.168.1.{i + 1}"),
             )
 
-        return PLCResponseDTO(
+        return Response(
             TagName=None, 
             Value=values,
             Status="Success"
         )
 
-    def GetModuleProperties(self, slot) -> PLCResponseDTO:
-        device = PLCDeviceDTO(IPAddress=f"192.168.1.{randint(1, 255)}")
-        return PLCResponseDTO(
+    def GetModuleProperties(self, slot) -> Response:
+        device = LGXDevice(IPAddress=f"192.168.1.{randint(1, 255)}")
+        return Response(
             TagName=None, 
             Value=device,
             Status="Success"
         )
 
-    def GetDeviceProperties(self) -> PLCResponseDTO:
-        device = PLCDeviceDTO(IPAddress=self.IPAddress)
-        return PLCResponseDTO(
+    def GetDeviceProperties(self) -> Response:
+        device = LGXDevice(IPAddress=self.IPAddress)
+        return Response(
             TagName=None, 
             Value=device,
             Status="Success"

@@ -7,6 +7,8 @@ type DarkModeProps = {
 };
 
 export function DarkMode({ children }: DarkModeProps) {
+    /* Gets the dark mode settings from the settings context
+     * and sets the dark tailwind css variable if enabled */
     const settings = useContext(SettingsContext);
 
     return (

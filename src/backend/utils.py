@@ -79,7 +79,7 @@ def common_token_protection(f):
                 raise e
         else:
             logger.error("The request token doesn't match the server token")
-            payload = StatusDTO(status="401 Unauthorized", error=True, error_message="Incorrect token supplied")
+            payload = StatusDTO(status="401 Unauthorized", error=True, error_message="The client supplied a token that doesn't match the server's token")
             return jsonify(asdict(payload))
     return wrap
 

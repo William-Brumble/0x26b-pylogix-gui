@@ -1,6 +1,6 @@
 import { discover } from "@/api";
 import { IDiscoverReq, IDiscoverRes } from "@/models/discover.ts";
-import { redirect, useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 import { columns } from "@/components/SourcesColumns.tsx";
 import { SourceDataTable } from "@/components/SourcesDataTable.tsx";
@@ -14,15 +14,8 @@ export function Source() {
     }
 
     return (
-        <div className="bg-background p-5">
-            <h2 className="text-foreground mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
-                Source
-            </h2>
-            <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
-                These are all the found PLC sources on your local area network;
-                you can select a tag source here.
-            </p>
-            <div className="w-full h-full min-h-full py-10">
+        <div className="bg-background p-0 m-0">
+            <div className="w-full h-full min-h-full py-2">
                 <SourceDataTable
                     columns={columns}
                     data={encoded.response.Value}
@@ -50,6 +43,6 @@ export const loader = async (payload: any) => {
             token: token,
         };
     } else {
-        return redirect("/error");
+        throw new Response("Not Found", { status: 404 });
     }
 };

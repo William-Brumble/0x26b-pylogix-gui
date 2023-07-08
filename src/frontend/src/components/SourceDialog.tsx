@@ -55,7 +55,7 @@ export function SourceDialog({ row }: ISourceDialogProps) {
         const target = event.currentTarget.elements;
 
         const msg: IConnectReq = {
-            token: settings.token ? settings.token : "test",
+            token: settings.token ? settings.token : "",
             ip_address: target.ip_address.value,
             slot: parseInt(target.slot.value),
             timeout: parseInt(target.timeout.value),

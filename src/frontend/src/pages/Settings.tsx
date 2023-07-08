@@ -18,6 +18,7 @@ import {
 import { SettingsContext } from "@/store/settings.context.tsx";
 
 const FormSchema = z.object({
+    development_mode: z.boolean(),
     dark_mode: z.boolean(),
     refresh_rate: z.coerce.number(),
 });
@@ -28,12 +29,14 @@ export function Settings() {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
+            development_mode: settings.devMode,
             dark_mode: settings.darkMode,
             refresh_rate: settings.refreshRate,
         },
     });
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
+        settings.setDevMode?.(data.development_mode);
         settings.setRefreshRate?.(data.refresh_rate);
         settings.setDarkMode?.(data.dark_mode);
     }
@@ -60,6 +63,31 @@ export function Settings() {
                                                 Toggle Dark Mode in Settings for
                                                 a sleek and easy-on-the-eyes
                                                 interface.
+                                            </FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="development_mode"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                        <div className="space-y-0.5">
+                                            <FormLabel className="text-base text-foreground">
+                                                Development mode
+                                            </FormLabel>
+                                            <FormDescription>
+                                                Activating the development mode
+                                                option enables the user to
+                                                toggle the visibility of the
+                                                manual operation page.
                                             </FormDescription>
                                         </div>
                                         <FormControl>

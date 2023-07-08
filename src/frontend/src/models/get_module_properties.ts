@@ -12,6 +12,6 @@ export interface IGetModulePropertiesRes {
     response: {
         Status: string;
         TagName: undefined;
-        Value: IPylogixDevice;
+        Value: IPylogixDevice[];
     };
 }

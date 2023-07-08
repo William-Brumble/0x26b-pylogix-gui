@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/components/lib/utils.ts";
 import { SettingsContext } from "@/store/settings.context.tsx";
-import { TagsContext } from "@/store/tags.context.tsx";
+import { WatchContext } from "@/store/watch.context.tsx";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -40,7 +40,7 @@ export function TagDataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
-    const tags = useContext(TagsContext);
+    const watch = useContext(WatchContext);
     const settings = useContext(SettingsContext);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -166,7 +166,8 @@ export function TagDataTable<TData, TValue>({
                                     "TagName"
                                 ) as string;
 
-                                const hasTagName = tags.tags?.has(tagName);
+                                const hasTagName =
+                                    watch.watchTags?.has(tagName);
 
                                 return (
                                     <TableRow
@@ -190,7 +191,8 @@ export function TagDataTable<TData, TValue>({
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No results.
+                                    No tags were found in the source
+                                    programmable logic controller (PLC).
                                 </TableCell>
                             </TableRow>
                         )}

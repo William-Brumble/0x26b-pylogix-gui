@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { IPylogixTag } from "@/models/pylogix.ts";
 import { useContext } from "react";
-import { TagsContext } from "@/store/tags.context.tsx";
+import { WatchContext } from "@/store/watch.context.tsx";
 
 type ISortableHeaderProps = {
     column: Column<IPylogixTag>;
@@ -35,18 +35,18 @@ const FormattedCell = ({ row, name }: IFormattedCellProps) => {
 export const columns: ColumnDef<IPylogixTag>[] = [
     {
         id: "select",
-        cell: ({ row }) => {
-            const tags = useContext(TagsContext);
+        cell: function Cell({ row }) {
+            const watch = useContext(WatchContext);
 
             const tag = row.original;
             const tagName = row.original.TagName;
-            const hasTagName = tags.tags?.has(tagName);
+            const hasTagName = watch.watchTags?.has(tagName);
 
             const handleChecked = (value: any) => {
                 if (value) {
-                    tags.add?.(tag);
+                    watch.add?.(tag);
                 } else {
-                    tags.remove?.(tag);
+                    watch.remove?.(tag);
                 }
 
                 row.toggleSelected(!!value);

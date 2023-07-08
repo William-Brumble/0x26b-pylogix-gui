@@ -72,15 +72,17 @@ export function NavigationMenuDesktop({ children }: MainNavProps) {
                 >
                     Source
                 </Link>
-                <Link
-                    to={`/manual-operation?token=${settings.token}`}
-                    className={cn(
-                        "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
-                        "text-foreground"
-                    )}
-                >
-                    Manual
-                </Link>
+                {settings.devMode && (
+                    <Link
+                        to={`/manual-operation?token=${settings.token}`}
+                        className={cn(
+                            "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
+                            "text-foreground"
+                        )}
+                    >
+                        Manual
+                    </Link>
+                )}
                 <Link
                     to={`/settings?token=${settings.token}`}
                     className={cn(

@@ -6,6 +6,7 @@ import { Settings } from "@/pages/Settings.tsx";
 import { ManualOperation } from "@/pages/ManualOperation.tsx";
 import { NavigationMenuDesktop } from "@/components/NavigationMenuDesktop.tsx";
 import { DarkMode } from "@/components/DarkMode.tsx";
+import { Token } from "@/components/Token.tsx";
 import { ConfigurationProvider } from "@/store/settings.provider.tsx";
 import { Source } from "@/pages/Source.tsx";
 import { Tags } from "@/pages/Tags.tsx";
@@ -14,37 +15,35 @@ import { loader as loaderSource } from "@/pages/Source.tsx";
 import { loader as loaderManual } from "@/pages/ManualOperation.tsx";
 import { loader as loaderTags } from "@/pages/Tags.tsx";
 import { loader as loaderError } from "@/pages/Error.tsx";
-import { useContext, useEffect } from "react";
-import { SettingsContext } from "@/store/settings.context.tsx";
 import { SourcesProvider } from "@/store/sources.provider.tsx";
-import { TagsProvider } from "@/store/tags.provider.tsx";
+import { WatchProvider } from "@/store/watch.provider.tsx";
+import { ReactNode } from "react";
 
-function Root() {
-    const settings = useContext(SettingsContext);
-
-    useEffect(() => {
-        /*
-            On linux this isn't an issue, but on winblows
-            you need to reference the global pywebview object after
-            component has mounted fully.
-         */
-        const token = window?.pywebview?.token;
-        if (token) {
-            settings.setToken?.(token);
-        }
-    }, []);
+type ProvidersProps = {
+    children: ReactNode;
+};
+const Providers = ({ children }: ProvidersProps) => {
+    /* Wraps app in settings, sources, and tags providers */
 
     return (
         <ConfigurationProvider>
             <SourcesProvider>
-                <TagsProvider>
-                    <DarkMode>
-                        <NavigationMenuDesktop />
-                        <Outlet />
-                    </DarkMode>
-                </TagsProvider>
+                <WatchProvider>{children}</WatchProvider>
             </SourcesProvider>
         </ConfigurationProvider>
+    );
+};
+
+function Root() {
+    return (
+        <Providers>
+            <Token>
+                <DarkMode>
+                    <NavigationMenuDesktop />
+                    <Outlet />
+                </DarkMode>
+            </Token>
+        </Providers>
     );
 }
 

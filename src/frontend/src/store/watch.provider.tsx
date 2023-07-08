@@ -1,6 +1,10 @@
 import { ReactNode, useState } from "react";
 
-import { WatchContextType, WatchContext } from "@/store/tags.context.tsx";
+import {
+    WatchContextType,
+    WatchContext,
+    defaultState,
+} from "@/store/watch.context.tsx";
 import { IPylogixTag } from "@/models/pylogix.ts";
 
 type Props = {
@@ -9,17 +13,20 @@ type Props = {
 
 export const WatchProvider = ({ children }: Props) => {
     const [watchTags, setWatchTagsState] = useState<Map<string, IPylogixTag>>(
-        new Map()
+        defaultState.watchTags
     );
 
     const addTag = (tag: IPylogixTag) => {
-        setWatchTagsState(new Map(watchTags.set(tag.TagName, tag)));
+        const local = new Map(watchTags.set(tag.TagName, tag));
+        setWatchTagsState(local);
+        localStorage.setItem("watchTags", JSON.stringify([...local]));
     };
 
     const removeTag = (tag: IPylogixTag) => {
         const local = new Map(watchTags);
         local.delete(tag.TagName);
         setWatchTagsState(new Map(local));
+        localStorage.setItem("watchTags", JSON.stringify([...local]));
     };
 
     const values: WatchContextType = {

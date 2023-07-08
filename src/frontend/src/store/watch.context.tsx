@@ -9,7 +9,7 @@ export interface WatchContextType {
     remove: (tag: IPylogixTag) => void;
 }
 
-const defaultState = {
+export const defaultState = {
     watchTags: getLocalStorageValue("watchTags", new Map()),
 };
 

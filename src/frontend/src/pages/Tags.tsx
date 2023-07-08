@@ -1,4 +1,9 @@
-import { redirect, useLoaderData } from "react-router-dom";
+import {
+    LoaderFunction,
+    LoaderFunctionArgs,
+    redirect,
+    useLoaderData,
+} from "react-router-dom";
 
 import { IGetTagListReq, IGetTagListRes } from "@/models/get_tag_list.ts";
 import { getTagList } from "@/api";
@@ -6,19 +11,17 @@ import { TagDataTable } from "@/components/TagsDataTable.tsx";
 import { columns } from "@/components/TagsColumns.tsx";
 
 export function Tags() {
-    const data: any = useLoaderData();
-    const encoded = data as IGetTagListRes;
+    const { tags_response }: any = useLoaderData();
+    const encoded = tags_response as IGetTagListRes;
 
-    if (encoded.response?.Value) {
-        return <TagDataTable columns={columns} data={encoded.response.Value} />;
-    } else {
-        return <div>No tags found</div>;
-    }
+    return <TagDataTable columns={columns} data={encoded.response.Value} />;
 }
 
-export const loader = async (payload: any) => {
+export const loader: LoaderFunction = async ({
+    request,
+}: LoaderFunctionArgs) => {
     try {
-        const params = new URL(payload.request.url).searchParams;
+        const params = new URL(request.url).searchParams;
         const token = params.get("token");
 
         const reqPayload: IGetTagListReq = {
@@ -26,37 +29,18 @@ export const loader = async (payload: any) => {
             all_tags: true,
         };
 
-        const response: IGetTagListRes = {
-            error: false,
-            error_message: "200 Ok",
-            status: "",
-            response: {
-                Status: undefined,
-                TagName: undefined,
-                Value: undefined,
-            },
-        };
+        const tags = await getTagList(reqPayload);
 
-        const sources = await getTagList(reqPayload);
-
-        if (sources.error) {
+        if (tags.error) {
             return redirect(
-                `/error?title=${sources.status}&message=${sources.error_message}`
+                `/error?title=${tags.status}&message=${tags.error_message}`
             );
         }
 
-        response.error = sources.error;
-        response.error_message = sources.error_message;
-        response.status = sources.status;
-        response.response = sources.response;
-
-        return response;
-    } catch (error) {
         return {
-            error: true,
-            error_message: `${error}`,
-            status: "418 I'm a teapot",
-            response: undefined,
+            tags_response: tags,
         };
+    } catch (error) {
+        return redirect(`/error?title=${"418 I'm a teapot"}&message=${error}`);
     }
 };

@@ -1,17 +1,18 @@
 import { discover } from "@/api";
 import { IDiscoverReq, IDiscoverRes } from "@/models/discover.ts";
-import { useLoaderData } from "react-router-dom";
+import {
+    LoaderFunction,
+    LoaderFunctionArgs,
+    redirect,
+    useLoaderData,
+} from "react-router-dom";
 
 import { columns } from "@/components/SourcesColumns.tsx";
 import { SourceDataTable } from "@/components/SourcesDataTable.tsx";
 
 export function Source() {
-    const { error, error_message, data }: any = useLoaderData();
-    const encoded = data as IDiscoverRes;
-
-    if (error) {
-        alert(error_message);
-    }
+    const { discover_response }: any = useLoaderData();
+    const encoded = discover_response as IDiscoverRes;
 
     return (
         <div className="bg-background p-0 m-0">
@@ -25,24 +26,29 @@ export function Source() {
     );
 }
 
-export const loader = async (payload: any) => {
-    const params = new URL(payload.request.url).searchParams;
-    const token = params.get("token");
+export const loader: LoaderFunction = async ({
+    request,
+}: LoaderFunctionArgs) => {
+    try {
+        const params = new URL(request.url).searchParams;
+        const token = params.get("token");
 
-    if (token) {
         const msg: IDiscoverReq = {
-            token: token,
+            token: token ? token : "",
         };
 
         const sources = await discover(msg);
 
+        if (sources.error) {
+            return redirect(
+                `/error?title=${sources.status}&message=${sources.error_message}`
+            );
+        }
+
         return {
-            error: false,
-            error_message: "no error message",
-            data: sources,
-            token: token,
+            discover_response: sources,
         };
-    } else {
-        throw new Response("Not Found", { status: 404 });
+    } catch (error) {
+        return redirect(`/error?title=${"418 I'm a teapot"}&message=${error}`);
     }
 };

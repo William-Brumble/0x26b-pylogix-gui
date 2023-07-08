@@ -183,9 +183,10 @@ export function SourceDataTable<TData, TValue>({
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length}
-                                    className="h-24 text-center"
+                                    className="h-24 text-center text-foreground"
                                 >
-                                    No results.
+                                    No programmable logic controllers (PLC) were
+                                    found on your local area network.
                                 </TableCell>
                             </TableRow>
                         )}

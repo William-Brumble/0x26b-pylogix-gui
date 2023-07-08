@@ -6,7 +6,9 @@ export interface ISetPlcTimeRes {
     error: boolean;
     error_message: string;
     status: string;
-    Status: string;
-    TagName: undefined;
-    Value: number;
+    response: {
+        Status: string;
+        TagName: undefined;
+        Value: number;
+    };
 }

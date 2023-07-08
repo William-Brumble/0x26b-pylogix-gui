@@ -19,7 +19,7 @@ from models import (
         DiscoverReqDTO, DiscoverResDTO,
         GetModulePropertiesReqDTO, GetModulePropertiesResDTO,
         GetDevicePropertiesReqDTO, GetDevicePropertiesResDTO,
-        PLCDeviceDTO, PLCTagDTO
+        LGXDevice, Tag
 )
 from server import Server
 from app import App
@@ -108,7 +108,7 @@ class AppTests(unittest.TestCase):
             self.assertIsInstance(i.status, str)
             self.assertIsInstance(i.error, bool)
             if i.value:
-                self.assertIsInstance(i.value, (bool, int, str, list[str], float, datetime, list[PLCTagDTO], PLCDeviceDTO, list[PLCDeviceDTO]))
+                self.assertIsInstance(i.value, (bool, int, str, list[str], float, datetime, list[Tag], LGXDevice, list[LGXDevice]))
                 self.assertEqual(i.status, "200 OK")
                 self.assertEqual(i.error, False)
 
@@ -128,7 +128,7 @@ class AppTests(unittest.TestCase):
             self.assertIsInstance(i.status, str)
             self.assertIsInstance(i.error, bool)
             if i.value:
-                self.assertIsInstance(i.value, (bool, int, str, list[str], float, datetime, list[PLCTagDTO], PLCDeviceDTO, list[PLCDeviceDTO]))
+                self.assertIsInstance(i.value, (bool, int, str, list[str], float, datetime, list[Tag], LGXDevice, list[LGXDevice]))
                 self.assertEqual(i.status, "200 OK")
                 self.assertEqual(i.error, False)
 
@@ -164,7 +164,7 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response.response.Value, list)
         if isinstance(response.response.Value, list):
             for i in response.response.Value:
-                self.assertIsInstance(i, PLCTagDTO)
+                self.assertIsInstance(i, Tag)
 
     def test_get_program_tag_list(self):
         payload = GetProgramTagListReqDTO(
@@ -178,7 +178,7 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response.response.Value, list)
         if isinstance(response.response.Value, list):
             for i in response.response.Value:
-                self.assertIsInstance(i, PLCTagDTO)
+                self.assertIsInstance(i, Tag)
 
     def test_get_programs_list(self):
         payload = GetProgramsListReqDTO()
@@ -205,9 +205,9 @@ class AppTests(unittest.TestCase):
         self.assertIsInstance(response.response.Value, list)
         if isinstance(response.response.Value, list):
             for i in response.response.Value:
-                self.assertIsInstance(i, PLCDeviceDTO)
+                self.assertIsInstance(i, LGXDevice)
         else:
-            self.assertIsInstance(response.response.Value, PLCDeviceDTO)
+            self.assertIsInstance(response.response.Value, LGXDevice)
 
     def test_get_module_properties(self):
         payload = GetModulePropertiesReqDTO(
@@ -218,7 +218,7 @@ class AppTests(unittest.TestCase):
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
         self.assertEqual(response.response.Status, "Success")
-        self.assertIsInstance(response.response.Value, PLCDeviceDTO)
+        self.assertIsInstance(response.response.Value, LGXDevice)
 
     def test_get_device_properties(self):
         payload = GetDevicePropertiesReqDTO()
@@ -227,7 +227,7 @@ class AppTests(unittest.TestCase):
         self.assertEqual(response.error, False)
         self.assertEqual(response.status, "200 OK")
         self.assertEqual(response.response.Status, "Success")
-        self.assertIsInstance(response.response.Value, PLCDeviceDTO)
+        self.assertIsInstance(response.response.Value, LGXDevice)
 
     def tearDown(self) -> None:
         return super().tearDown()

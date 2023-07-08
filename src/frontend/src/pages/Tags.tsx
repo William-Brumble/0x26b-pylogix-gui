@@ -6,48 +6,57 @@ import { TagDataTable } from "@/components/TagsDataTable.tsx";
 import { columns } from "@/components/TagsColumns.tsx";
 
 export function Tags() {
-    const { data }: any = useLoaderData();
+    const data: any = useLoaderData();
     const encoded = data as IGetTagListRes;
 
-    return (
-        <div className="bg-background p-5">
-            <h2 className="text-foreground mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
-                Tags
-            </h2>
-            <p className="text-foreground leading-7 [&:not(:first-child)]:mt-6 pb-4">
-                These are all the tags found in the source PLC; you can select
-                tags for monitoring here.
-            </p>
-            <div className="w-full h-full min-h-full py-10">
-                <TagDataTable columns={columns} data={encoded.response.Value} />
-            </div>
-        </div>
-    );
+    if (encoded.response?.Value) {
+        return <TagDataTable columns={columns} data={encoded.response.Value} />;
+    } else {
+        return <div>No tags found</div>;
+    }
 }
-export const loader = async (payload: any) => {
-    const params = new URL(payload.request.url).searchParams;
-    const token = params.get("token");
 
-    if (token) {
-        const msg: IGetTagListReq = {
-            token: token,
+export const loader = async (payload: any) => {
+    try {
+        const params = new URL(payload.request.url).searchParams;
+        const token = params.get("token");
+
+        const reqPayload: IGetTagListReq = {
+            token: token ? token : "",
             all_tags: true,
         };
 
-        const sources = await getTagList(msg);
+        const response: IGetTagListRes = {
+            error: false,
+            error_message: "200 Ok",
+            status: "",
+            response: {
+                Status: undefined,
+                TagName: undefined,
+                Value: undefined,
+            },
+        };
+
+        const sources = await getTagList(reqPayload);
 
         if (sources.error) {
-            if (sources.status === "412 Precondition Failed") {
-                alert(sources.error_message);
-                return redirect("/source");
-            }
+            return redirect(
+                `/error?title=${sources.status}&message=${sources.error_message}`
+            );
         }
 
+        response.error = sources.error;
+        response.error_message = sources.error_message;
+        response.status = sources.status;
+        response.response = sources.response;
+
+        return response;
+    } catch (error) {
         return {
-            data: sources,
-            token: token,
+            error: true,
+            error_message: `${error}`,
+            status: "418 I'm a teapot",
+            response: undefined,
         };
-    } else {
-        return redirect("/error");
     }
 };

@@ -4,8 +4,8 @@ from pylogix import PLC as RealPylogixPLC
 from mocklogix import PLC as MockPylogixPLC
 from utils import common_exception_handler, common_connection_protection
 from models import (
-        PLCConnectionSizeDTO,
-        ResponseDTO, PLCResponseDTO,
+        PLCConnectionSizeDTO, PLCDeviceDTO, PLCTagDTO,
+        Response, PLCResponseDTO,
         ConnectReqDTO, ConnectResDTO,
         CloseReqDTO, CloseResDTO,
         GetConnectionSizeReqDTO, GetConnectionSizeResDTO,
@@ -32,9 +32,9 @@ class App:
         self._simulate = simulate
 
         if self._simulate:
-            self._plc = MockPylogixPLC();
+            self._plc = MockPylogixPLC()
         else:
-            self._plc = RealPylogixPLC();
+            self._plc = RealPylogixPLC()
 
     def initialize(self):
         return True
@@ -74,9 +74,9 @@ class App:
         self._plc.Close()
 
         if self._simulate:
-            self._plc = MockPylogixPLC();
+            self._plc = MockPylogixPLC()
         else:
-            self._plc = RealPylogixPLC();
+            self._plc = RealPylogixPLC()
 
         return CloseResDTO(status="200 OK")
 
@@ -132,10 +132,10 @@ class App:
             response=payload
         )
 
-    def _process_plc_response(self, responses: PLCResponseDTO | list[PLCResponseDTO]) -> list[ResponseDTO]:
+    def _process_plc_response(self, responses: Response | list[Response]) -> list[PLCResponseDTO]:
         """ Unpack the raw response from the PLC to an internally defined ResponseDTO. """
         logger.debug(f"Processing the plc response: {responses}")
-        payload: list[ResponseDTO] = []
+        payload: list[PLCResponseDTO] = []
 
         logger.debug("Checking if the input responses is a list")
         if isinstance(responses, list):
@@ -159,33 +159,26 @@ class App:
         logger.debug(f"Processing finished with the following payload: {payload}")
         return payload
 
-    def _process_individual(self, input_response: PLCResponseDTO):
+    def _process_individual(self, input_response: Response):
         logger.debug(f"Process individual called with: {input_response}")
 
         logger.debug("Checking to see if the response was a success")
+
         if input_response.Status == "Success":
-
             logger.debug("The response was successful")
-            response = ResponseDTO(
-                error=False,
-                TagName=input_response.TagName,
-                Value=input_response.Value,
-                Status=input_response.Status
-            )
-
-            logger.debug(f"Adding the response to the list: {response}")
-
         else:
-
             logger.debug("The response was not successful")
-            response = ResponseDTO(
-                error=True, 
-                TagName=input_response.TagName,
-                Value=input_response.Value,
-                Status=input_response.Status
-            )
 
-        return response
+        logger.debug(f"Packing the raw data structure into a data transfer object")
+        encoded = PLCResponseDTO(
+            TagName=input_response.TagName,
+            Value=input_response.Value,
+            Status=input_response.Status
+        )
+
+        logger.debug(f"Adding the response to the list: {encoded}")
+
+        return encoded
 
     @common_connection_protection
     def get_plc_time(self, req: GetPlcTimeReqDTO) -> GetPlcTimeResDTO:
@@ -194,7 +187,9 @@ class App:
         response = self._plc.GetPLCTime(raw=req.raw)
         logger.debug(f"Got response: {response}")
 
-        return GetPlcTimeResDTO(error=False, status="200 OK", response=response)
+        encoded = self._pack_response(response)
+
+        return GetPlcTimeResDTO(error=False, status="200 OK", response=encoded)
 
     @common_connection_protection
     def set_plc_time(self, req: SetPlcTimeReqDTO) -> SetPlcTimeResDTO:
@@ -203,7 +198,9 @@ class App:
         response = self._plc.SetPLCTime()
         logger.debug(f"Got response: {response}")
 
-        return SetPlcTimeResDTO(error=False, status="200 OK", response=response)
+        encoded = self._pack_response(response)
+
+        return SetPlcTimeResDTO(error=False, status="200 OK", response=encoded)
 
     @common_connection_protection
     def get_tag_list(self, req: GetTagListReqDTO) -> GetTagListResDTO:
@@ -212,7 +209,9 @@ class App:
         response = self._plc.GetTagList(allTags=req.all_tags)
         logger.debug(f"Got response: {response}")
 
-        return GetTagListResDTO(error=False, status="200 OK", response=response)
+        encoded = self._pack_raw_tags(response)
+
+        return GetTagListResDTO(error=False, status="200 OK", response=encoded)
 
     @common_connection_protection
     def get_program_tag_list(self, req: GetProgramTagListReqDTO) -> GetProgramTagListResDTO:
@@ -221,7 +220,9 @@ class App:
         response = self._plc.GetProgramTagList(programName=req.program_name)
         logger.debug(f"Got response: {response}")
 
-        return GetProgramTagListResDTO(error=False, status="200 OK", response=response)
+        encoded = self._pack_raw_tags(response)
+
+        return GetProgramTagListResDTO(error=False, status="200 OK", response=encoded)
 
     @common_connection_protection
     def get_programs_list(self, req: GetProgramsListReqDTO) -> GetProgramsListResDTO:
@@ -229,38 +230,94 @@ class App:
 
         response = self._plc.GetProgramsList()
         logger.debug(f"Got response: {response}")
+        
+        encoded = self._pack_response(response)
 
-        return GetProgramsListResDTO(error=False, status="200 OK", response=response)
+        return GetProgramsListResDTO(error=False, status="200 OK", response=encoded)
 
     def discover(self, req: DiscoverReqDTO) -> DiscoverResDTO:
         logger.debug(f"Discover called with: {req}")
 
         response = self._plc.Discover()
-
-        # filter to only include PLC devices
-        response.Value = [x for x in response.Value if x.DeviceID == 14]
-
         logger.debug(f"Got response: {response}")
 
-        return DiscoverResDTO(error=False, status="200 OK", response=response)
+        logger.debug(f"Filtering to only include PLC device types")
+        response.Value = [x for x in response.Value if x.DeviceID == 14]
+
+        encoded = self._pack_raw_devices(response)
+
+        return DiscoverResDTO(error=False, status="200 OK", response=encoded)
 
     @common_connection_protection
     def get_module_properties(self, req: GetModulePropertiesReqDTO) -> GetModulePropertiesResDTO:
         logger.debug(f"Get module properties called with: {req}")
 
         response = self._plc.GetModuleProperties(slot=req.slot)
-
         logger.debug(f"Got response: {response}")
 
-        return GetModulePropertiesResDTO(error=False, status="200 OK", response=response)
+        encoded = self._pack_raw_devices(response)
+
+        return GetModulePropertiesResDTO(error=False, status="200 OK", response=encoded)
 
     @common_connection_protection
     def get_device_properties(self, req: GetDevicePropertiesReqDTO) -> GetDevicePropertiesResDTO:
         logger.debug(f"Get device properties called with: {req}")
 
         response = self._plc.GetDeviceProperties()
-
         logger.debug(f"Got response: {response}")
 
-        return GetDevicePropertiesResDTO(error=False, status="200 OK", response=response)
+        encoded = self._pack_raw_devices(response)
+
+        return GetDevicePropertiesResDTO(error=False, status="200 OK", response=encoded)
+
+    def _pack_response(self, response: Response) -> PLCResponseDTO:
+        logger.debug(f"Packing the raw response data structures into a data transfer object")
+        encoded = PLCResponseDTO(**response.__dict__)
+
+        return encoded
+
+    def _pack_raw_tags(self, response: Response) -> list[PLCResponseDTO]:
+        logger.debug(f"Packing the raw tag data structures into a data transfer objects")
+        container: list[PLCTagDTO] = []
+        if isinstance(response.Value, list):
+            for tag in response.Value:
+                container.append(
+                    PLCTagDTO(**tag.__dict__)
+                )
+        else:
+            container.append(
+                PLCTagDTO(**response.Value.__dict__)
+            )
+
+        
+        logger.debug(f"Packing the raw response data structures into a data transfer object")
+        encoded = PLCResponseDTO(
+            TagName=response.TagName,
+            Status=response.Status,
+            Value=container
+        )
+
+        return encoded
+
+    def _pack_raw_devices(self, response: Response) -> list[PLCResponseDTO]:
+        logger.debug(f"Packing the raw device data structures into a data transfer objects")
+
+        container: list[PLCDeviceDTO] = []
+        if isinstance(response.Value, list):
+            for device in response.Value:
+                container.append(
+                    PLCDeviceDTO(**device.__dict__)
+                )
+        else:
+            device = PLCDeviceDTO(**response.Value.__dict__)
+            container.append(device)
+        
+        logger.debug(f"Packing the raw response data structures into a data transfer object")
+        encoded = PLCResponseDTO(
+            TagName=response.TagName,
+            Status=response.Status,
+            Value=container
+        )
+
+        return encoded
 

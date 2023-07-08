@@ -3,13 +3,15 @@ import { Link } from "react-router-dom";
 
 import { cn } from "@/components/lib/utils";
 import { useLockBody } from "@/hooks/use-lock-body.ts";
+import { useContext } from "react";
+import { SettingsContext } from "@/store/settings.context.tsx";
 
 interface MobileNavProps {
-    token: string;
     children?: React.ReactNode;
 }
 
-export function NavigationMenuMobile({ children, token }: MobileNavProps) {
+export function NavigationMenuMobile({ children }: MobileNavProps) {
+    const settings = useContext(SettingsContext);
     useLockBody();
 
     return (
@@ -20,7 +22,7 @@ export function NavigationMenuMobile({ children, token }: MobileNavProps) {
         >
             <div className="relative z-20 grid gap-6 rounded-md bg-popover p-4 text-popover-foreground shadow-md">
                 <Link
-                    to={`/?token=${token}`}
+                    to={`/?token=${settings.token}`}
                     className="flex items-center space-x-2"
                 >
                     {/*<Icons.logo />*/}
@@ -28,8 +30,7 @@ export function NavigationMenuMobile({ children, token }: MobileNavProps) {
                 </Link>
                 <nav className="grid grid-flow-row auto-rows-max text-sm">
                     <Link
-                        to={`/?token=${token}`}
-                        state={{ token: token }}
+                        to={`/?token=${settings.token}`}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
@@ -37,8 +38,7 @@ export function NavigationMenuMobile({ children, token }: MobileNavProps) {
                         Watch
                     </Link>
                     <Link
-                        to={`/tags?token=${token}`}
-                        state={{ token: token }}
+                        to={`/tags?token=${settings.token}`}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
@@ -47,8 +47,7 @@ export function NavigationMenuMobile({ children, token }: MobileNavProps) {
                     </Link>
                     {/*
                     <Link
-                        to={`/collections?token=${token}`}
-                        state={{ token: token }}
+                        to={`/collections?token=${settings.token}`}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
@@ -57,8 +56,7 @@ export function NavigationMenuMobile({ children, token }: MobileNavProps) {
                     </Link>
                     */}
                     <Link
-                        to={`/source?token=${token}`}
-                        state={{ token: token }}
+                        to={`/source?token=${settings.token}`}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
@@ -66,8 +64,7 @@ export function NavigationMenuMobile({ children, token }: MobileNavProps) {
                         Source
                     </Link>
                     <Link
-                        to={`/manual-operation?token=${token}`}
-                        state={{ token: token }}
+                        to={`/manual-operation?token=${settings.token}`}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}
@@ -75,8 +72,7 @@ export function NavigationMenuMobile({ children, token }: MobileNavProps) {
                         Manual
                     </Link>
                     <Link
-                        to={`/settings?token=${token}`}
-                        state={{ token: token }}
+                        to={`/settings?token=${settings.token}`}
                         className={cn(
                             "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline"
                         )}

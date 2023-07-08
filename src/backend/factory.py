@@ -47,11 +47,14 @@ class Factory:
         return flask_server
 
     @staticmethod
-    def create_window(server: Flask, server_port: int, window_name: str):
+    def create_window(server: Flask, server_port: int, window_name: str, test_token: None | str = None):
         logger.debug(f"Creating the window with server: {server}, and window_name: {window_name}")
         stream = StringIO()
         with redirect_stdout(stream):
             window = webview.create_window(window_name, server, http_port=server_port)
+
+        if test_token:
+            webview.token = test_token
 
         return window
 

@@ -42,95 +42,93 @@ export function Settings() {
     }
 
     return (
-        <div className="bg-background p-5">
-            <Form {...form}>
-                <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="w-full space-y-6"
-                >
-                    <div>
-                        <div className="space-y-4">
-                            <FormField
-                                control={form.control}
-                                name="dark_mode"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                        <div className="space-y-0.5">
-                                            <FormLabel className="text-base text-foreground">
-                                                Dark mode
-                                            </FormLabel>
-                                            <FormDescription>
-                                                Toggle Dark Mode in Settings for
-                                                a sleek and easy-on-the-eyes
-                                                interface.
-                                            </FormDescription>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="development_mode"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                        <div className="space-y-0.5">
-                                            <FormLabel className="text-base text-foreground">
-                                                Development mode
-                                            </FormLabel>
-                                            <FormDescription>
-                                                Activating the development mode
-                                                option enables the user to
-                                                toggle the visibility of the
-                                                manual operation page.
-                                            </FormDescription>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="refresh_rate"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                        <div className="space-y-0.5">
-                                            <FormLabel className="text-base text-foreground">
-                                                Refresh rate
-                                            </FormLabel>
-                                            <FormDescription>
-                                                Fine-tune the time delay between
-                                                tag reads with the Refresh Rate
-                                                setting
-                                            </FormDescription>
-                                            <FormMessage />
-                                        </div>
-                                        <FormControl>
-                                            <Input
-                                                className="text-foreground"
-                                                type="number"
-                                                placeholder="Input refresh rate"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+        <Form {...form}>
+            <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full space-y-6 pt-4"
+            >
+                <div>
+                    <div className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="dark_mode"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                        <FormLabel className="text-base text-foreground">
+                                            Dark mode
+                                        </FormLabel>
+                                        <FormDescription>
+                                            Toggle Dark Mode in Settings for a
+                                            sleek and easy-on-the-eyes
+                                            interface.
+                                        </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="development_mode"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                        <FormLabel className="text-base text-foreground">
+                                            Development mode
+                                        </FormLabel>
+                                        <FormDescription>
+                                            Activating the development mode
+                                            option enables the user to toggle
+                                            the visibility of the manual
+                                            operation page.
+                                        </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="refresh_rate"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                        <FormLabel className="text-base text-foreground">
+                                            Refresh rate
+                                        </FormLabel>
+                                        <FormDescription>
+                                            Fine-tune the time delay between the
+                                            cycle of tag reads with the Refresh
+                                            Rate setting, units (ms)
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </div>
+                                    <FormControl>
+                                        <Input
+                                            className="text-foreground"
+                                            type="number"
+                                            placeholder="Input refresh rate"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
                     </div>
-                    <Button type="submit">Submit</Button>
-                </form>
-            </Form>
-        </div>
+                </div>
+                <Button type="submit">Submit</Button>
+            </form>
+        </Form>
     );
 }

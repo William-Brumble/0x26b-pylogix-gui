@@ -56,6 +56,8 @@ class PLC:
         return
 
     def Read(self, tag, count = 1, datatype = None) -> Response | list[Response]:
+        time.sleep(0.1)
+
         if datatype:
             datatype = _DataType(datatype)
         if isinstance(tag, list):
@@ -91,7 +93,7 @@ class PLC:
                 case _DataType.DINT:
                     val = randint(-2147483648, 2147483647)
                 case _DataType.REAL:
-                    val = uniform(-162142900000000000000, 162142900000000000000)
+                    val = uniform(-2147483648, 2147483647)
                 case _DataType.STRING:
                     val = ''.join(choice(ascii_letters) for i in range(10))
                 case _:
@@ -99,6 +101,8 @@ class PLC:
             return Response(TagName=tag, Value=val, Status="Success")
 
     def Write(self, tag, value = None, datatype = None) -> Response | list[Response]:
+        time.sleep(0.1)
+
         if datatype:
             datatype = _DataType(datatype)
         if isinstance(tag, list):
@@ -112,20 +116,26 @@ class PLC:
             return Response(TagName=tag, Value=value, Status="Success")
 
     def GetPLCTime(self, raw = False) -> Response:
+        time.sleep(0.1)
         if raw:
             return Response(TagName=None, Value=time.time(), Status="Success")
         else:
             return Response(TagName=None, Value=datetime.now(), Status="Success")
 
     def SetPLCTime(self) -> Response:
+        time.sleep(0.1)
+
         return Response(TagName=None, Value=time.time(), Status="Success")
 
     def GetTagList(self, allTags: bool = True) -> Response:
+        time.sleep(uniform(0.1, 10))
+
         values: list[str] = []
         for i in range(randint(1, 1000)):
             values.append(
                 Tag(TagName=f"tag-{i}")
             )
+
         return Response(
             TagName=None, 
             Value=values,
@@ -133,6 +143,8 @@ class PLC:
         )
 
     def GetProgramTagList(self, programName: str) -> Response:
+        time.sleep(uniform(0.1, 10))
+
         values: list[str] = []
         for i in range(randint(1, 1000)):
             values.append(
@@ -146,9 +158,12 @@ class PLC:
         )
 
     def GetProgramsList(self) -> Response:
+        time.sleep(uniform(0.1, 10))
+
         values: list[str] = []
         for i in range(randint(1, 1000)):
             values.append(f"Program:program-{i}")
+
         return Response(
             TagName=None, 
             Value=values,
@@ -156,6 +171,8 @@ class PLC:
         )
 
     def Discover(self) -> Response:
+        time.sleep(uniform(0.1, 10))
+
         values: list[LGXDevice] = []
         for i in range(255):
             values.append(
@@ -169,6 +186,8 @@ class PLC:
         )
 
     def GetModuleProperties(self, slot) -> Response:
+        time.sleep(0.1)
+
         device = LGXDevice(IPAddress=f"192.168.1.{randint(1, 255)}")
         return Response(
             TagName=None, 
@@ -177,6 +196,8 @@ class PLC:
         )
 
     def GetDeviceProperties(self) -> Response:
+        time.sleep(0.1)
+
         device = LGXDevice(IPAddress=self.IPAddress)
         return Response(
             TagName=None, 

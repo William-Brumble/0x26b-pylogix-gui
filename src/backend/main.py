@@ -9,8 +9,10 @@ import sys
 # Create the argument parser
 parser = argparse.ArgumentParser(description='Pylogix GUI')
 parser.add_argument('-p', '--port', default=65535, help='Port for the server to listen on')
-parser.add_argument('-t', '--token', default=None, help='The server token')
+parser.add_argument('-t', '--token', default=None, help='The pywebview token')
 parser.add_argument('--simulate', action="store_true", help='Simulate a connection to a PLC')
+parser.add_argument('--logging', action="store_true", help='Enable debug logging to console')
+parser.add_argument('--debug', action="store_true", help='Enable pywebview debug window')
 args = parser.parse_args()
 
 def log_startup_information():
@@ -31,7 +33,8 @@ def log_startup_information():
 
 if __name__ == '__main__':
     logger = Factory.create_root_logger()
-    logger = Factory.create_stream_logger(logger)
+    if args.logging:
+        logger = Factory.create_stream_logger(logger)
 
     logger.debug("The application had started")
 
@@ -46,6 +49,6 @@ if __name__ == '__main__':
     logger.debug("Using the factory to create the window")
     window = Factory.create_window(server=server.flask_app, server_port=args.port, window_name="0x26b-pylogix-gui", token=args.token)
 
-    webview.start(debug=True, private_mode=False)
+    webview.start(debug=args.debug, private_mode=False)
 
 

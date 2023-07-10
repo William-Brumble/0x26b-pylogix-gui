@@ -36,14 +36,16 @@ const Providers = ({ children }: ProvidersProps) => {
 
 function Root() {
     return (
-        <Providers>
-            <Token>
-                <DarkMode>
-                    <NavigationMenuDesktop />
-                    <Outlet />
-                </DarkMode>
-            </Token>
-        </Providers>
+        <div className="py-4 px-4">
+            <Providers>
+                <Token>
+                    <DarkMode>
+                        <NavigationMenuDesktop />
+                        <Outlet />
+                    </DarkMode>
+                </Token>
+            </Providers>
+        </div>
     );
 }
 

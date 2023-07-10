@@ -1,12 +1,13 @@
 import { createContext } from "react";
 import { getLocalStorageValue } from "@/utilities/get-local-storage-value.ts";
 
-import { IPylogixTag } from "@/models/pylogix.ts";
+import { IWatchTag } from "@/models/watch_tag.ts";
 
 export interface WatchContextType {
-    watchTags: Map<string, IPylogixTag>;
-    add: (tag: IPylogixTag) => void;
-    remove: (tag: IPylogixTag) => void;
+    watchTags: Map<string, IWatchTag>;
+    add: (tag: IWatchTag) => void;
+    remove: (tag: IWatchTag) => void;
+    update: (tag: IWatchTag) => void;
 }
 
 export const defaultState = {

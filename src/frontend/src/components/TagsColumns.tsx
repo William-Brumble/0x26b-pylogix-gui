@@ -44,9 +44,12 @@ export const columns: ColumnDef<IPylogixTag>[] = [
 
             const handleChecked = (value: any) => {
                 if (value) {
-                    watch.add?.(tag);
+                    watch.add?.({ Value: "unread", ...tag });
                 } else {
-                    watch.remove?.(tag);
+                    watch.remove?.({
+                        Value: "removing tag so value isn't needed",
+                        ...tag,
+                    });
                 }
 
                 row.toggleSelected(!!value);

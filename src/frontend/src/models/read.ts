@@ -4,7 +4,7 @@ export interface IReadReq {
     token: string;
     tag: string;
     count: number;
-    datatype: number;
+    datatype: number | string;
 }
 
 export interface IReadRes {

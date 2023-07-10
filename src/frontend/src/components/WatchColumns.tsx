@@ -2,13 +2,14 @@ import { Column, ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button";
-import { IPylogixTag } from "@/models/pylogix.ts";
 import { useContext } from "react";
 import { WatchContext } from "@/store/watch.context.tsx";
+import { IWatchTag } from "@/models/watch_tag.ts";
 
 type ISortableHeaderProps = {
-    column: Column<IPylogixTag>;
+    column: Column<IWatchTag>;
     name: string;
 };
 const SortableHeader = ({ column, name }: ISortableHeaderProps) => {
@@ -24,7 +25,7 @@ const SortableHeader = ({ column, name }: ISortableHeaderProps) => {
 };
 
 type IFormattedCellProps = {
-    row: Row<IPylogixTag>;
+    row: Row<IWatchTag>;
     name: string;
 };
 const FormattedCell = ({ row, name }: IFormattedCellProps) => {
@@ -32,7 +33,7 @@ const FormattedCell = ({ row, name }: IFormattedCellProps) => {
     return <div className="text-foreground">{value}</div>;
 };
 
-export const columns: ColumnDef<IPylogixTag>[] = [
+export const columns: ColumnDef<IWatchTag>[] = [
     {
         id: "select",
         cell: function Cell({ row }) {
@@ -73,10 +74,19 @@ export const columns: ColumnDef<IPylogixTag>[] = [
         },
     },
     {
-        accessorKey: "LiveValue",
+        accessorKey: "Value",
         header: "Live Value",
         cell: ({ row }) => {
-            return <FormattedCell row={row} name={"LiveValue"} />;
+            const value: string | number | undefined = row.getValue("Value");
+            return (
+                <Input
+                    className="text-foreground w-1/2 min-w-fit"
+                    type="text"
+                    placeholder="unread"
+                    value={value}
+                    readOnly
+                />
+            );
         },
     },
     {

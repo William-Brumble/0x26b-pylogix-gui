@@ -63,8 +63,8 @@ class PLCTagDTO:
     TagName: str
     InstanceID: int = 10
     SymbolType: int = 214
-    DataTypeValue: int = 1750
-    DataType: str = "AB:ETHERNET_MODULE:C:O"
+    DataTypeValue: int = 0xca
+    DataType: str = "REAL"
     Array: int = 0
     Struct: int = 1
     Size: int = 0
@@ -118,8 +118,8 @@ class Tag:
                  TagName: str,
                  InstanceID: int = 10,
                  SymbolType: int = 214,
-                 DataTypeValue: int = 1750,
-                 DataType: str = "AB:ETHERNET_MODULE:C:O",
+                 DataTypeValue: int = 0xca,
+                 DataType: str = "REAL",
                  Array: int = 0,
                  Struct: int = 1,
                  Size: int = 0,

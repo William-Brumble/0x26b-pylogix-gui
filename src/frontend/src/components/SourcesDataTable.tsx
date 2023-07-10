@@ -29,7 +29,6 @@ import { cn } from "@/components/lib/utils.ts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SourcesContext } from "@/store/sources.context.tsx";
-import { SettingsContext } from "@/store/settings.context.tsx";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -40,7 +39,6 @@ export function SourceDataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
-    const settings = useContext(SettingsContext);
     const sources = useContext(SourcesContext);
 
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -100,10 +98,7 @@ export function SourceDataTable<TData, TValue>({
                     className="max-w-sm text-foreground"
                 />
                 <DropdownMenu>
-                    <DropdownMenuTrigger
-                        className={cn(settings.darkMode ? "dark" : null)}
-                        asChild
-                    >
+                    <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
                             className="ml-auto text-foreground"
@@ -111,10 +106,7 @@ export function SourceDataTable<TData, TValue>({
                             Columns
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        className={cn(settings.darkMode ? "dark" : null)}
-                        align="end"
-                    >
+                    <DropdownMenuContent align="end">
                         {table
                             .getAllColumns()
                             .filter((column) => column.getCanHide())

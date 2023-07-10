@@ -27,8 +27,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/components/lib/utils.ts";
-import { SettingsContext } from "@/store/settings.context.tsx";
 import { WatchContext } from "@/store/watch.context.tsx";
 
 interface DataTableProps<TData, TValue> {
@@ -41,7 +39,6 @@ export function TagDataTable<TData, TValue>({
     data,
 }: DataTableProps<TData, TValue>) {
     const watch = useContext(WatchContext);
-    const settings = useContext(SettingsContext);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState({});
@@ -103,10 +100,7 @@ export function TagDataTable<TData, TValue>({
                 />
 
                 <DropdownMenu>
-                    <DropdownMenuTrigger
-                        className={cn(settings.darkMode ? "dark" : null)}
-                        asChild
-                    >
+                    <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
                             className="ml-auto text-foreground"
@@ -114,10 +108,7 @@ export function TagDataTable<TData, TValue>({
                             Columns
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        className={cn(settings.darkMode ? "dark" : null)}
-                        align="end"
-                    >
+                    <DropdownMenuContent align="end">
                         {table
                             .getAllColumns()
                             .filter((column) => column.getCanHide())

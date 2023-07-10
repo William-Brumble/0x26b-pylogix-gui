@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import {
     ColumnDef,
     flexRender,
@@ -27,8 +27,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/components/lib/utils.ts";
-import { SettingsContext } from "@/store/settings.context.tsx";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -39,7 +37,6 @@ export function WatchDataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
-    const settings = useContext(SettingsContext);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [rowSelection, setRowSelection] = useState({});
@@ -101,10 +98,7 @@ export function WatchDataTable<TData, TValue>({
                 />
 
                 <DropdownMenu>
-                    <DropdownMenuTrigger
-                        className={cn(settings.darkMode ? "dark" : null)}
-                        asChild
-                    >
+                    <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
                             className="ml-auto text-foreground"
@@ -112,10 +106,7 @@ export function WatchDataTable<TData, TValue>({
                             Columns
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                        className={cn(settings.darkMode ? "dark" : null)}
-                        align="end"
-                    >
+                    <DropdownMenuContent align="end">
                         {table
                             .getAllColumns()
                             .filter((column) => column.getCanHide())

@@ -76,10 +76,7 @@ export function SourceDialog({ row }: ISourceDialogProps) {
     return (
         <Dialog>
             <DropdownMenu>
-                <DropdownMenuTrigger
-                    className={cn(settings.darkMode ? "dark" : null)}
-                    asChild
-                >
+                <DropdownMenuTrigger asChild>
                     <Button
                         variant="ghost"
                         className="bg-background text-foreground h-8 w-8 p-0"
@@ -90,10 +87,7 @@ export function SourceDialog({ row }: ISourceDialogProps) {
                         <MoreHorizontal className="h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
-                    className={cn(settings.darkMode ? "dark" : null)}
-                    align="end"
-                >
+                <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DialogTrigger asChild>
                         <DropdownMenuItem className="bg-background text-foreground">
@@ -103,10 +97,7 @@ export function SourceDialog({ row }: ISourceDialogProps) {
                 </DropdownMenuContent>
             </DropdownMenu>
             <DialogContent
-                className={cn(
-                    settings.darkMode ? "dark" : null,
-                    "bg-background stroke-0 sm:max-w-[425px]"
-                )}
+                className={cn("bg-background stroke-0 sm:max-w-[425px]")}
             >
                 <DialogHeader>
                     <DialogTitle className="text-foreground">

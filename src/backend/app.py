@@ -3,24 +3,7 @@ from pylogix import PLC as RealPylogixPLC
 
 from mocklogix import PLC as MockPylogixPLC
 from utils import common_exception_handler, common_connection_protection
-from models import (
-        PLCConnectionSizeDTO, PLCDeviceDTO, PLCTagDTO,
-        Response, PLCResponseDTO,
-        ConnectReqDTO, ConnectResDTO,
-        CloseReqDTO, CloseResDTO,
-        GetConnectionSizeReqDTO, GetConnectionSizeResDTO,
-        SetConnectionSizeReqDTO, SetConnectionSizeResDTO,
-        ReadReqDTO, ReadResDTO, StatusDTO,
-        WriteReqDTO, WriteResDTO,
-        GetPlcTimeReqDTO, GetPlcTimeResDTO,
-        SetPlcTimeReqDTO, SetPlcTimeResDTO,
-        GetTagListReqDTO, GetTagListResDTO,
-        GetProgramTagListReqDTO, GetProgramTagListResDTO,
-        GetProgramsListReqDTO, GetProgramsListResDTO,
-        DiscoverReqDTO, DiscoverResDTO,
-        GetModulePropertiesReqDTO, GetModulePropertiesResDTO,
-        GetDevicePropertiesReqDTO, GetDevicePropertiesResDTO
-)
+from models import *
 
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
@@ -218,6 +201,7 @@ class App:
         logger.debug(f"Get program tag list called with: {req}")
 
         response = self._plc.GetProgramTagList(programName=req.program_name)
+
         logger.debug(f"Got response: {response}")
 
         encoded = self._pack_raw_tags(response)
@@ -278,17 +262,32 @@ class App:
 
     def _pack_raw_tags(self, response: Response) -> list[PLCResponseDTO]:
         logger.debug(f"Packing the raw tag data structures into a data transfer objects")
+        allowed_datatypes = [item.value for item in PylogixDataType]
         container: list[PLCTagDTO] = []
+
         if isinstance(response.Value, list):
             for tag in response.Value:
-                container.append(
-                    PLCTagDTO(**tag.__dict__)
-                )
+                if tag.DataTypeValue in allowed_datatypes:
+                    if tag.Array:
+                        for index in range(tag.Size):
+                            temp_tag = PLCTagDTO(**tag.__dict__)
+                            temp_tag.TagName += f"[{index}]"
+                            container.append(temp_tag)
+                    else:
+                        container.append(
+                            PLCTagDTO(**tag.__dict__)
+                        )
         else:
-            container.append(
-                PLCTagDTO(**response.Value.__dict__)
-            )
-
+            if tag.DataTypeValue in allowed_datatypes:
+                if tag.Array:
+                    for index in range(tag.Size):
+                        temp_tag = PLCTagDTO(**tag.__dict__)
+                        temp_tag.TagName += f"[{index}]"
+                        container.append(temp_tag)
+                else:
+                    container.append(
+                        PLCTagDTO(**response.Value.__dict__)
+                    )
         
         logger.debug(f"Packing the raw response data structures into a data transfer object")
         encoded = PLCResponseDTO(

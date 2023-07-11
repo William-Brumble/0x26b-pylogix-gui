@@ -1,5 +1,6 @@
 from datetime import datetime
 from dataclasses import dataclass
+from enum import Enum
 
 @dataclass(kw_only=True)
 class RequestDTO:
@@ -56,6 +57,23 @@ class ReadReqDTO(RequestDTO):
     tag: str
     count: int = 1
     datatype: int | None = None
+
+class PylogixDataType(Enum):
+    UNKNOWN = 0x00
+    STRUCT  = 0xa0
+    BOOL    = 0xc1
+    SINT    = 0xc2
+    INT     = 0xc3
+    DINT    = 0xc4
+    LINT    = 0xc5
+    USINT   = 0xc6
+    UINT    = 0xc7
+    UDINT   = 0xc8
+    LWORD   = 0xc9
+    REAL    = 0xca
+    LREAL   = 0xcb
+    DWORD   = 0xd3
+    STRING  = 0xda
 
 # The apps definition of a pylogix tag
 @dataclass(kw_only=True)

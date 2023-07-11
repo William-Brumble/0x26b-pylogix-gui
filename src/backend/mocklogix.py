@@ -8,11 +8,7 @@ from logging import getLogger, NullHandler
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
-from models import (
-    Response,
-    Tag,
-    LGXDevice
-)
+from models import *
 
 class _DataType(Enum):
     UNKNOWN = 0x00
@@ -93,7 +89,7 @@ class PLC:
                 case _DataType.DINT:
                     val = randint(-2147483648, 2147483647)
                 case _DataType.REAL:
-                    val = uniform(-2147483648, 2147483647)
+                    val = uniform(-162142900000000000000, 162142900000000000000)
                 case _DataType.STRING:
                     val = ''.join(choice(ascii_letters) for i in range(10))
                 case _:
@@ -128,13 +124,23 @@ class PLC:
         return Response(TagName=None, Value=time.time(), Status="Success")
 
     def GetTagList(self, allTags: bool = True) -> Response:
-        time.sleep(uniform(0.1, 10))
+        time.sleep(uniform(0.1, 5))
+        allowed_datatypes = [item.value for item in _DataType]
 
         values: list[str] = []
         for i in range(randint(1, 1000)):
-            values.append(
-                Tag(TagName=f"tag-{i}")
-            )
+            logger.warn("one")
+            selected_datatype_value = choice(allowed_datatypes)
+            logger.warn("two")
+            selected_datatype_name = _DataType(selected_datatype_value).name
+            logger.warn("three")
+            temp_tag = Tag(TagName=f"tag-{selected_datatype_name}-{i}")
+            logger.warn("four")
+            temp_tag.DataType = selected_datatype_name
+            logger.warn("five")
+            temp_tag.DataTypeValue = selected_datatype_value
+            logger.warn("six")
+            values.append(temp_tag)
 
         return Response(
             TagName=None, 
@@ -143,13 +149,17 @@ class PLC:
         )
 
     def GetProgramTagList(self, programName: str) -> Response:
-        time.sleep(uniform(0.1, 10))
+        time.sleep(uniform(0.1, 5))
+        allowed_datatypes = [item.value for item in _DataType]
 
         values: list[str] = []
         for i in range(randint(1, 1000)):
-            values.append(
-                Tag(TagName=f"Program:{programName}.tag-{i}")
-            )
+            selected_datatype_value = choice(allowed_datatypes)
+            selected_datatype_name = _DataType(selected_datatype_value).name
+            temp_tag = Tag(TagName=f"Program:{programName}.tag-{selected_datatype_name}-{i}")
+            temp_tag.DataType = selected_datatype_name
+            temp_tag.DataTypeValue = selected_datatype_value
+            values.append(temp_tag)
 
         return Response(
             TagName=None, 
@@ -158,7 +168,7 @@ class PLC:
         )
 
     def GetProgramsList(self) -> Response:
-        time.sleep(uniform(0.1, 10))
+        time.sleep(uniform(0.1, 5))
 
         values: list[str] = []
         for i in range(randint(1, 1000)):
@@ -171,7 +181,7 @@ class PLC:
         )
 
     def Discover(self) -> Response:
-        time.sleep(uniform(0.1, 10))
+        time.sleep(uniform(0.1, 5))
 
         values: list[LGXDevice] = []
         for i in range(255):

@@ -14,6 +14,7 @@ frontend_assets = os.path.join(os.getcwd(), "dist", "assets", "*") +";./dist/ass
 
 os.system(
     f'pyinstaller ' +
+    f'--windowed ' +
     f'--clean ' +
     f'--name "{app_name}" ' +
     f'--paths "{venv_path}" ' +

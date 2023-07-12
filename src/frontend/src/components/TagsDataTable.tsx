@@ -157,8 +157,7 @@ export function TagDataTable<TData, TValue>({
                                     "TagName"
                                 ) as string;
 
-                                const hasTagName =
-                                    watch.watchTags?.has(tagName);
+                                const hasTagName = watch.tags_map.has(tagName);
 
                                 return (
                                     <TableRow

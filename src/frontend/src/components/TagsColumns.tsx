@@ -37,18 +37,15 @@ export const columns: ColumnDef<IPylogixTag>[] = [
         id: "select",
         cell: function Cell({ row }) {
             const watch = useContext(WatchContext);
-
-            const tag = row.original;
-            const tagName = row.original.TagName;
-            const hasTagName = watch.watchTags?.has(tagName);
+            const hasTagName = watch.tags_map.has(row.original.TagName);
 
             const handleChecked = (value: any) => {
                 if (value) {
-                    watch.add?.({ Value: "unread", ...tag });
+                    watch.add({ Value: "unread", ...row.original });
                 } else {
-                    watch.remove?.({
+                    watch.remove({
                         Value: "removing tag so value isn't needed",
-                        ...tag,
+                        ...row.original,
                     });
                 }
 

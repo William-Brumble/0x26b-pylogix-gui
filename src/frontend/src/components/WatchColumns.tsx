@@ -90,7 +90,6 @@ export const columns: ColumnDef<IWatchTag>[] = [
 
                 if (source.selectedSource) {
                     const response = await read(msg);
-                    console.log("response", response);
 
                     if (!response.error) {
                         setValue(response.response[0].Value);
@@ -100,8 +99,6 @@ export const columns: ColumnDef<IWatchTag>[] = [
                 } else {
                     setValue("unread");
                 }
-                console.log("value", value);
-                console.log("source", source.selectedSource);
             }, []);
 
             useIntervalAsync(poll, settings.refreshRate);

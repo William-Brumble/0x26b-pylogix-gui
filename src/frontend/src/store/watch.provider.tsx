@@ -12,32 +12,49 @@ type Props = {
 };
 
 export const WatchProvider = ({ children }: Props) => {
-    const [watchTags, setWatchTagsState] = useState<Map<string, IWatchTag>>(
-        defaultState.watchTags
+    const [tags_map, setTagsMap] = useState<Map<string, IWatchTag>>(
+        defaultState.tags_map
+    );
+
+    const [tags_array, setTagsArray] = useState<IWatchTag[]>(
+        defaultState.tags_array
     );
 
     const addTag = (tag: IWatchTag) => {
-        const local = new Map(watchTags.set(tag.TagName, tag));
-        setWatchTagsState(local);
-        localStorage.setItem("watchTags", JSON.stringify([...local]));
+        const local_map = new Map(tags_map.set(tag.TagName, tag));
+        setTagsMap(local_map);
+        localStorage.setItem("tags_map", JSON.stringify([...local_map]));
+
+        const local_array = Array.from(local_map.values());
+        setTagsArray(local_array);
+        localStorage.setItem("tags_array", JSON.stringify(local_array));
     };
 
     const removeTag = (tag: IWatchTag) => {
-        const local = new Map(watchTags);
-        local.delete(tag.TagName);
-        setWatchTagsState(local);
-        localStorage.setItem("watchTags", JSON.stringify([...local]));
+        const local_map = new Map(tags_map);
+        local_map.delete(tag.TagName);
+        setTagsMap(local_map);
+        localStorage.setItem("local_map", JSON.stringify([...local_map]));
+
+        const local_array = Array.from(local_map.values());
+        setTagsArray(local_array);
+        localStorage.setItem("tags_array", JSON.stringify(local_array));
     };
 
     const updateTag = (tag: IWatchTag) => {
-        const local = new Map(watchTags);
-        local.set(tag.TagName, tag);
-        setWatchTagsState(local);
-        localStorage.setItem("watchTags", JSON.stringify([...local]));
+        const local_map = new Map(tags_map);
+        local_map.set(tag.TagName, tag);
+        setTagsMap(local_map);
+        localStorage.setItem("watchTags", JSON.stringify([...local_map]));
+
+        const local_array = Array.from(local_map.values());
+        setTagsArray(local_array);
+        localStorage.setItem("tags_array", JSON.stringify(local_array));
     };
 
     const values: WatchContextType = {
-        watchTags: watchTags,
+        tags_map: tags_map,
+        tags_array: tags_array,
         add: addTag,
         remove: removeTag,
         update: updateTag,

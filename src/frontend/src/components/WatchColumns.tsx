@@ -4,9 +4,14 @@ import { ArrowUpDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input.tsx";
 import { Button } from "@/components/ui/button";
-import { useContext } from "react";
+import { useCallback, useContext, useState } from "react";
 import { WatchContext } from "@/store/watch.context.tsx";
 import { IWatchTag } from "@/models/watch_tag.ts";
+import { IReadReq } from "@/models/read.ts";
+import { read } from "@/api";
+import { useIntervalAsync } from "@/hooks/use-interval-async.ts";
+import { SettingsContext } from "@/store/settings.context.tsx";
+import { SourcesContext } from "@/store/sources.context.tsx";
 
 type ISortableHeaderProps = {
     column: Column<IWatchTag>;
@@ -38,19 +43,10 @@ export const columns: ColumnDef<IWatchTag>[] = [
         id: "select",
         cell: function Cell({ row }) {
             const watch = useContext(WatchContext);
+            const hasTagName = watch.tags_map.has(row.original.TagName);
 
-            const tag = row.original;
-            const tagName = row.original.TagName;
-            const hasTagName = watch.watchTags?.has(tagName);
-
-            const handleChecked = (value: any) => {
-                if (value) {
-                    watch.add?.(tag);
-                } else {
-                    watch.remove?.(tag);
-                }
-
-                row.toggleSelected(!!value);
+            const handleChecked = () => {
+                watch.remove(row.original);
             };
 
             return (
@@ -76,8 +72,40 @@ export const columns: ColumnDef<IWatchTag>[] = [
     {
         accessorKey: "Value",
         header: "Live Value",
-        cell: ({ row }) => {
-            const value: string | number | undefined = row.getValue("Value");
+        cell: function Cell({ row }) {
+            const settings = useContext(SettingsContext);
+            const source = useContext(SourcesContext);
+
+            const [value, setValue] = useState<string | number | undefined>(
+                "unread"
+            );
+
+            const poll = useCallback(async () => {
+                const msg: IReadReq = {
+                    token: settings.token ? settings.token : "",
+                    tag: row.original.TagName,
+                    count: 1,
+                    datatype: row.original.DataTypeValue,
+                };
+
+                if (source.selectedSource) {
+                    const response = await read(msg);
+                    console.log("response", response);
+
+                    if (!response.error) {
+                        setValue(response.response[0].Value);
+                    } else {
+                        setValue(response.status);
+                    }
+                } else {
+                    setValue("unread");
+                }
+                console.log("value", value);
+                console.log("source", source.selectedSource);
+            }, []);
+
+            useIntervalAsync(poll, settings.refreshRate);
+
             return (
                 <Input
                     className="text-foreground w-1/2 min-w-fit"

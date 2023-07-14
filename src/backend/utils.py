@@ -44,10 +44,10 @@ def common_payload_protection(PayloadClass):
                 data = json.loads(request.data)
                 logger.debug(f"Request payload: {data}")
                 logger.debug(f"Needed payload fields: {payload_class_field_names}")
-                PayloadClass(**data)
+                request = PayloadClass(**data)
                 logger.debug("Payload matches all is well")
                 try:
-                    response = f(self, *args, **kwargs)
+                    response = f(self, *args, request=request, **kwargs)
                     return response
                 except Exception as e:
                     logger.error(f"Exception: {e}")

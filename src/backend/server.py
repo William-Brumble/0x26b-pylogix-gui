@@ -6,27 +6,8 @@ from flask_cors import CORS
 from logging import getLogger, NullHandler
 
 from app import App
-from utils import (
-        common_exception_handler, 
-        common_payload_protection,
-        common_token_protection
-)
-from models import (
-        ConnectReqDTO,
-        CloseReqDTO,
-        GetConnectionSizeReqDTO,
-        SetConnectionSizeReqDTO,
-        ReadReqDTO,
-        WriteReqDTO,
-        GetPlcTimeReqDTO,
-        SetPlcTimeReqDTO,
-        GetTagListReqDTO,
-        GetProgramTagListReqDTO,
-        GetProgramsListReqDTO,
-        DiscoverReqDTO,
-        GetModulePropertiesReqDTO,
-        GetDevicePropertiesReqDTO
-)
+from utils import *
+from models import *
 
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
@@ -149,190 +130,97 @@ class Server:
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(ConnectReqDTO)
-    def connect(self) -> Response:
-
-        response = self._process_request(
-            ConnectReqDTO,
-            self.application.connect
-        )
-
-        return response
+    def connect(self, request: ConnectReqDTO) -> Response:
+        response = self.application.connect(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(CloseReqDTO)
-    def close(self) -> Response:
-
-        response = self._process_request(
-            CloseReqDTO,
-            self.application.close
-        )
-
-        return response
+    def close(self, request: CloseReqDTO) -> Response:
+        response = self.application.close(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(GetConnectionSizeReqDTO)
-    def get_connection_size(self) -> Response:
-
-        response = self._process_request(
-            GetConnectionSizeReqDTO,
-            self.application.get_connection_size
-        )
-
-        return response
+    def get_connection_size(self, request: GetConnectionSizeReqDTO) -> Response:
+        response = self.application.get_connection_size(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(SetConnectionSizeReqDTO)
-    def set_connection_size(self) -> Response:
-
-        response = self._process_request(
-            SetConnectionSizeReqDTO,
-            self.application.set_connection_size
-        )
-
-        return response
+    def set_connection_size(self, request: SetConnectionSizeReqDTO) -> Response:
+        response = self.application.set_connection_size(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(ReadReqDTO)
-    def read(self) -> Response:
-
-        response = self._process_request(
-            ReadReqDTO,
-            self.application.read
-        )
-
-        return response
+    def read(self, request: ReadReqDTO) -> Response:
+        response = self.application.read(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(WriteReqDTO)
-    def write(self) -> Response:
-
-        response = self._process_request(
-            WriteReqDTO,
-            self.application.write
-        )
-
-        return response
+    def write(self, request: WriteReqDTO) -> Response:
+        response = self.application.write(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(GetPlcTimeReqDTO)
-    def get_plc_time(self) -> Response:
-
-        response = self._process_request(
-            GetPlcTimeReqDTO,
-            self.application.get_plc_time
-        )
-
-        return response
+    def get_plc_time(self, request: GetPlcTimeReqDTO) -> Response:
+        response = self.application.get_plc_time(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(SetPlcTimeReqDTO)
-    def set_plc_time(self) -> Response:
-
-        response = self._process_request(
-            SetPlcTimeReqDTO,
-            self.application.set_plc_time
-        )
-
-        return response
+    def set_plc_time(self, request: SetPlcTimeReqDTO) -> Response:
+        response = self.application.set_plc_time(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(GetTagListReqDTO)
-    def get_tag_list(self) -> Response:
-
-        response = self._process_request(
-            GetTagListReqDTO,
-            self.application.get_tag_list
-        )
-
-        return response
+    def get_tag_list(self, request: GetTagListReqDTO) -> Response:
+        response = self.application.get_tag_list(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(GetProgramTagListReqDTO)
-    def get_program_tag_list(self) -> Response:
-
-        response = self._process_request(
-            GetProgramTagListReqDTO,
-            self.application.get_program_tag_list
-        )
-
-        return response
+    def get_program_tag_list(self, request: GetProgramTagListReqDTO) -> Response:
+        response = self.application.get_program_tag_list(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(GetProgramsListReqDTO)
-    def get_programs_list(self) -> Response:
-
-        response = self._process_request(
-            GetProgramsListReqDTO,
-            self.application.get_programs_list
-        )
-
-        return response
+    def get_programs_list(self, request: GetProgramsListReqDTO) -> Response:
+        response = self.application.get_programs_list(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(DiscoverReqDTO)
-    def discover(self) -> Response:
-
-        response = self._process_request(
-            DiscoverReqDTO,
-            self.application.discover
-        )
-
-        return response
+    def discover(self, request: DiscoverReqDTO) -> Response:
+        response = self.application.discover(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(GetModulePropertiesReqDTO)
-    def get_module_properties(self) -> Response:
-
-        response = self._process_request(
-            GetModulePropertiesReqDTO,
-            self.application.get_module_properties
-        )
-
-        return response
+    def get_module_properties(self, request: GetModulePropertiesReqDTO) -> Response:
+        response = self.application.get_module_properties(request=request)
+        return jsonify(asdict(response))
 
     @common_exception_handler
     @common_token_protection
     @common_payload_protection(GetDevicePropertiesReqDTO)
     def get_device_properties(self) -> Response:
-
-        response = self._process_request(
-            GetDevicePropertiesReqDTO,
-            self.application.get_device_properties
-        )
-
-        return response
-
-    def _process_request(self, RequestClass, procedural_parameter):
-        logger.debug(f"Process request called with class: {RequestClass}, procedural_parameter: {procedural_parameter}")
-
-        logger.debug(f"Checking to see if application is initialized")
-        if self.application:
-            logger.debug(f"Application is initialized")
-
-            data = json.loads(request.data)
-            logger.debug(f"Parsed the request data, got: {data}")
-
-            payload = RequestClass(**data)
-            logger.debug(f"Instantiated request class: {payload}")
-
-            response = procedural_parameter(payload)
-            logger.debug(f"Processed the request, got response: {response}")
-
-            return jsonify(asdict(response))
-        else:
-            logger.debug(f"Application is not initialized")
-            logger.error("Server application object uninitialized")
-            raise Exception("Server application object uninitialized")
-
+        response = self.application.get_device_properties(request=request)
+        return jsonify(asdict(response))

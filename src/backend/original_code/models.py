@@ -1,3 +1,4 @@
+from typing import Any
 from datetime import datetime
 from dataclasses import dataclass
 from enum import Enum
@@ -5,6 +6,11 @@ from enum import Enum
 @dataclass(kw_only=True)
 class RequestDTO:
     token: str
+
+@dataclass(kw_only=True)
+class PylogixCommandDTO:
+    command: str
+    payload: Any
 
 @dataclass(kw_only=True)
 class StatusDTO:

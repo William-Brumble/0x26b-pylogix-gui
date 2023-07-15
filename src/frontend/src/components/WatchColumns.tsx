@@ -43,10 +43,10 @@ export const columns: ColumnDef<IWatchTag>[] = [
         id: "select",
         cell: function Cell({ row }) {
             const watch = useContext(WatchContext);
-            const hasTagName = watch.tags_map.has(row.original.TagName);
+            const hasTagName = watch.tags_map.has(row.getValue("TagName"));
 
             const handleChecked = () => {
-                watch.remove(row.original);
+                watch.remove(row.row.original);
             };
 
             return (
@@ -83,9 +83,9 @@ export const columns: ColumnDef<IWatchTag>[] = [
             const poll = useCallback(async () => {
                 const msg: IReadReq = {
                     token: settings.token ? settings.token : "",
-                    tag: row.original.TagName,
+                    tag: row.getValue("TagName"),
                     count: 1,
-                    datatype: row.original.DataTypeValue,
+                    datatype: row.getValue("DataTypeValue"),
                 };
 
                 if (source.selectedSource) {

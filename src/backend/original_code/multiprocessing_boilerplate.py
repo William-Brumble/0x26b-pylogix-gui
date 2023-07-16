@@ -16,7 +16,6 @@ from models import *
 
 root_logger = getLogger()
 formatter = Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
 root_stream_handler = StreamHandler()
 root_stream_handler.setLevel(DEBUG)
 root_stream_handler.setFormatter(formatter)

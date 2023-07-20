@@ -21,13 +21,12 @@ class App:
             self.handler = QueueHandler(queue)
             self._logger.addHandler(self.handler)
 
+        self.pywebview_url = pywebview_url
         self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.REQ)
-        self.socket.setsockopt(zmq.LINGER, 0)
-        self.socket.connect(pywebview_url)
+
 
     def __del__(self):
-        self.socket.close()
+        self._disconnect()
         self.context.term()
 
     def _decoded_message(self, message):
@@ -35,8 +34,17 @@ class App:
         message_objectified = json.loads(message_decoded)
         return message_objectified
 
+    def _connect(self):
+        self.socket = self.context.socket(zmq.REQ)
+        self.socket.setsockopt(zmq.LINGER, 0)
+        self.socket.connect(self.pywebview_url)
+
+    def _disconnect(self):
+        self.socket.close()
+
     @common_payload_protection(Connect)
     def connect(self, request: Connect):
+        self._connect()
         msg = json.dumps(
             {
                 "command": "connect",
@@ -54,9 +62,11 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(**message_decoded)
 
     def close(self):
+        self._connect()
         msg = json.dumps({"command": "close", "payload": None}).encode("utf-8")
 
         self.socket.send(msg)
@@ -64,9 +74,11 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(**message_decoded)
 
     def get_connection_size(self):
+        self._connect()
         msg = json.dumps({"command": "get_connection_size", "payload": None}).encode(
             "utf-8"
         )
@@ -76,6 +88,7 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -87,6 +100,7 @@ class App:
 
     @common_payload_protection(ConnectionSize)
     def set_connection_size(self, request: ConnectionSize):
+        self._connect()
         msg = json.dumps(
             {
                 "command": "set_connection_size",
@@ -99,19 +113,12 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(**message_decoded)
 
     @common_payload_protection(Read)
     def read(self, request: Read):
-        self._logger.warn(
-            "context ----------------------------------------------------"
-        )
-        self._logger.warn(self.context)
-        self._logger.warn(self.socket)
-        self._logger.warn(
-            "context ----------------------------------------------------"
-        )
-
+        self._connect()
         msg = json.dumps(
             {
                 "command": "read",
@@ -132,6 +139,7 @@ class App:
         for response in message_decoded["response"]:
             container.append(ResponseAsDataclass(**response))
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -141,6 +149,7 @@ class App:
 
     @common_payload_protection(Write)
     def write(self, request: Write):
+        self._connect()
         msg = json.dumps(
             {
                 "command": "write",
@@ -161,6 +170,7 @@ class App:
         for response in message_decoded["response"]:
             container.append(ResponseAsDataclass(**response))
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -170,6 +180,7 @@ class App:
 
     @common_payload_protection(PlcTime)
     def get_plc_time(self, request: PlcTime):
+        self._connect()
         msg = json.dumps(
             {"command": "get_plc_time", "payload": {"raw": request.raw}}
         ).encode("utf-8")
@@ -179,6 +190,7 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -187,6 +199,7 @@ class App:
         )
 
     def set_plc_time(self):
+        self._connect()
         msg = json.dumps({"command": "set_plc_time", "payload": None}).encode("utf-8")
 
         self.socket.send(msg)
@@ -194,6 +207,7 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -203,6 +217,7 @@ class App:
 
     @common_payload_protection(TagList)
     def get_tag_list(self, request: TagList):
+        self._connect()
         msg = json.dumps(
             {"command": "get_tag_list", "payload": {"all_tags": request.all_tags}}
         ).encode("utf-8")
@@ -212,6 +227,7 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -221,6 +237,7 @@ class App:
 
     @common_payload_protection(ProgramTagList)
     def get_program_tag_list(self, request: ProgramTagList):
+        self._connect()
         msg = json.dumps(
             {
                 "command": "get_program_tag_list",
@@ -233,6 +250,7 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -241,6 +259,7 @@ class App:
         )
 
     def get_programs_list(self):
+        self._connect()
         msg = json.dumps({"command": "get_programs_list", "payload": None}).encode(
             "utf-8"
         )
@@ -250,6 +269,7 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -258,6 +278,7 @@ class App:
         )
 
     def discover(self):
+        self._connect()
         msg = json.dumps({"command": "discover", "payload": None}).encode("utf-8")
 
         self.socket.send(msg)
@@ -265,6 +286,7 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -274,6 +296,7 @@ class App:
 
     @common_payload_protection(ModuleProperties)
     def get_module_properties(self, request: ModuleProperties):
+        self._connect()
         msg = json.dumps(
             {"command": "get_module_properties", "payload": {"slot": request.slot}}
         ).encode("utf-8")
@@ -283,6 +306,7 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],
@@ -291,6 +315,7 @@ class App:
         )
 
     def get_device_properties(self):
+        self._connect()
         msg = json.dumps({"command": "get_device_properties", "payload": None}).encode(
             "utf-8"
         )
@@ -300,6 +325,7 @@ class App:
         message = self.socket.recv()
         message_decoded = self._decoded_message(message)
 
+        self._disconnect()
         return ServerResponse(
             status=message_decoded["status"],
             error=message_decoded["error"],

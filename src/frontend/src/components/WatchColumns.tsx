@@ -46,7 +46,7 @@ export const columns: ColumnDef<IWatchTag>[] = [
             const hasTagName = watch.tags_map.has(row.getValue("TagName"));
 
             const handleChecked = () => {
-                watch.remove(row.row.original);
+                watch.remove(row.original);
             };
 
             return (

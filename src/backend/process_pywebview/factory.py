@@ -5,8 +5,20 @@ from process_pywebview._process import PywebviewProcess
 
 class Factory:
     @staticmethod
-    def create_pywebview(pywebview_url: str, queue: Queue, port: str, token: str):
+    def create_pywebview(
+        pywebview_url: str,
+        queue: Queue,
+        window_name: str,
+        port: str,
+        token: str,
+        debug: bool,
+    ):
         pywebview = PywebviewProcess.get_instance(
-            pywebview_url=pywebview_url, queue=queue, port=port, token=token
+            pywebview_url=pywebview_url,
+            queue=queue,
+            window_name=window_name,
+            port=port,
+            token=token,
+            debug=debug,
         )
         return pywebview

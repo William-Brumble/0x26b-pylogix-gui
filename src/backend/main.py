@@ -65,8 +65,10 @@ if __name__ == "__main__":
         PywebviewFactory.create_pywebview(
             pywebview_url="tcp://localhost:5559",
             queue=logging_queue,
+            window_name="0x26b-pylogix-gui",
             port=args.port,
             token=args.token,
+            debug=args.debug,
         ),
     ]
 

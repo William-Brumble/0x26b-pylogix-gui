@@ -42,9 +42,8 @@ class Pylogix:
 
                 response = self._delegate(**objectified_message)
 
-                self._logger.info(f"response one: {response}")
                 stringified_response = json.dumps(asdict(response))
-                self._logger.info(f"response two: {stringified_response}")
+                self._logger.info(f"Responding with: {stringified_response}")
                 encoded_response = stringified_response.encode("utf-8")
                 self._socket.send(encoded_response)
 
@@ -173,9 +172,7 @@ class Pylogix:
         payload = self._process_plc_response(responses)
         self._logger.debug(f"Processed the following response: {payload}")
 
-        return ServerResponse(
-            response=payload
-        )
+        return ServerResponse(response=payload)
 
     def _process_plc_response(
         self, responses: Response | list[Response]
@@ -231,6 +228,9 @@ class Pylogix:
 
         response = self._plc.GetPLCTime(raw=request.raw)
         self._logger.debug(f"Got response: {response}")
+
+        if isinstance(response.Value, datetime):
+            response.Value = str(response.Value)
 
         return ServerResponse(response=self._pack_response(response))
 
@@ -315,7 +315,7 @@ class Pylogix:
 
         return encoded
 
-    def _pack_raw_tags(self, response: Response) -> list[ResponseAsDataclass]:
+    def _pack_raw_tags(self, response: Response) -> ResponseAsDataclass:
         self._logger.debug(
             f"Packing the raw tag data structures into a data transfer objects"
         )
@@ -333,9 +333,9 @@ class Pylogix:
                     else:
                         container.append(TagAsDataclass(**tag.__dict__))
         else:
-            if tag.DataTypeValue in allowed_datatypes:
-                if tag.Array:
-                    for index in range(tag.Size):
+            if response.Value.DataTypeValue in allowed_datatypes:
+                if response.Value.Array:
+                    for index in range(response.Value.Size):
                         temp_tag = TagAsDataclass(**tag.__dict__)
                         temp_tag.TagName += f"[{index}]"
                         container.append(temp_tag)
@@ -351,7 +351,7 @@ class Pylogix:
 
         return encoded
 
-    def _pack_raw_devices(self, response: Response) -> list[ResponseAsDataclass]:
+    def _pack_raw_devices(self, response: Response) -> ResponseAsDataclass:
         self._logger.debug(
             f"Packing the raw device data structures into a data transfer objects"
         )
